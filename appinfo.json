@@ -1,0 +1,20 @@
+{
+    "appKeys": {},
+    "capabilities": [
+        ""
+    ],
+    "companyName": "mcclellan.mj@gmail.com",
+    "longName": "hourly-weather",
+    "projectType": "native",
+    "resources": {
+        "media": []
+    },
+    "sdkVersion": "2",
+    "shortName": "hourly-weather",
+    "uuid": "57189c83-842c-4ef0-b8a1-a48d907a8942",
+    "versionCode": 1,
+    "versionLabel": "0.4",
+    "watchapp": {
+        "watchface": true
+    }
+}

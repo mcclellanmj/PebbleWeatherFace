@@ -4,7 +4,7 @@ typedef struct {
   uint8_t temperature;
   enum {NORTH, NORTH_EAST, EAST, SOUTH_EAST, SOUTH, SOUTH_WEST, WEST, NORTH_WEST} wind_dir;
   uint8_t wind_speed;
-} WeatherShortDetail
+} WeatherShortDetail;
   
 typedef struct {
   enum {AVAILABLE, ERROR, NOT_REQUESTED, REQUESTING} status;

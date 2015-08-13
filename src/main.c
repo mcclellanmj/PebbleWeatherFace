@@ -31,13 +31,13 @@ static TimeInfo get_current_time(const struct tm *tick_time) {
   TimeInfo time_info;
   
   // Generate the time
-  char *time_buffer = "00:00";
-  strftime(time_buffer, sizeof("00:00"), "%H:%M", tick_time);
+  static char time_buffer[6];
+  strftime(time_buffer, 6, "%H:%M", tick_time);
   time_info.time_text = time_buffer;
   
   // Generate the date
-  char *date_buffer = "Saturday 00/00";
-  strftime(date_buffer, sizeof("Saturday 00/00"), "%A %m/%d", tick_time);
+  static char date_buffer[16];
+  strftime(date_buffer, 16, "%A %m/%d", tick_time);
   time_info.date_text = date_buffer;
   
   return time_info;
@@ -131,12 +131,13 @@ static void handle_bluetooth_change(bool connected) {
 
 static void handle_init(void) {
   parts = malloc(sizeof(*parts));
-  
-  parts->main_window = window_create();
-  parts->time_layer = create_time_layer();
-  parts->date_layer = create_date_layer();
-  parts->battery_layer = create_battery_layer();
-  parts->bluetooth_layer = create_bluetooth_layer();
+  *parts = (struct Parts) {
+    .main_window = window_create(),
+    .time_layer = create_time_layer(),
+    .date_layer = create_date_layer(),
+    .battery_layer = create_battery_layer(),
+    .bluetooth_layer = create_bluetooth_layer()
+  };
   
   window_set_window_handlers(parts->main_window, (WindowHandlers) {
     .load = window_load,

@@ -28,9 +28,10 @@ static GPath* generate_bluetooth_path(const GRect* rect) {
   points[4] = (GPoint) {one_third_width, 0};
   points[5] = (GPoint) {two_thirds_width, height};
   
-  GPathInfo path_info;
-  path_info.num_points = size;
-  path_info.points = points; 
+  GPathInfo path_info = {
+    .num_points = size,
+    .points = points
+  };
   
   return gpath_create(&path_info);
 }
@@ -39,10 +40,12 @@ BluetoothLayer* bluetooth_layer_create_layer(GRect frame, bool connected) {
   Layer *layer = layer_create_with_data(frame, sizeof(BluetoothLayer));
   BluetoothLayer *bluetooth_layer = (BluetoothLayer*) layer_get_data(layer);
   
-  bluetooth_layer->foreground_color = GColorWhite;
-  bluetooth_layer->layer = layer;
-  bluetooth_layer->connected = connected;
-  bluetooth_layer->path = generate_bluetooth_path(&frame);
+  *bluetooth_layer = (BluetoothLayer){
+    .foreground_color = GColorWhite,
+    .layer = layer,
+    .connected = connected,
+    .path = generate_bluetooth_path(&frame),
+  };
   
   layer_set_update_proc(layer, draw_bluetooth);
   

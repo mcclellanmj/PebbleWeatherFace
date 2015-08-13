@@ -12,7 +12,8 @@ static GPathInfo* generate_bolt_path(GRect rect) {
   uint16_t left_bolt = scale_length(height, 58);
   uint16_t right_bolt = scale_length(height, 42);
   
-  GPoint *points = malloc(sizeof(GPoint) * 7);
+  uint8_t size = 7;
+  GPoint *points = malloc(sizeof(GPoint) * size);
   
   points[6] = (GPoint) {4,0};
   points[5] = (GPoint) {0, left_bolt};
@@ -23,8 +24,10 @@ static GPathInfo* generate_bolt_path(GRect rect) {
   points[0] = (GPoint) {4, 0};
   
   struct GPathInfo *path_info = malloc(sizeof(GPathInfo));
-  path_info->num_points = 7;
-  path_info->points = points;
+  *path_info = (GPathInfo) {
+    .num_points = size,
+    .points = points
+  };
   
   return path_info;
 }
@@ -68,14 +71,16 @@ static void draw_battery(Layer *layer, GContext *ctx) {
 
 BatteryLayer* battery_layer_create_layer(GRect rect) {
   Layer *layer = layer_create_with_data(rect, sizeof(BatteryLayer));
+  
   BatteryLayer *battery_layer = (BatteryLayer*) layer_get_data(layer);
+  *battery_layer = (BatteryLayer) {
+    .background_color = GColorBlack,
+    .foreground_color = GColorWhite,
+    .layer = layer,
+    .bolt_path = generate_bolt_path(rect),
+  };
   
-  battery_layer->background_color = GColorBlack;
-  battery_layer->foreground_color = GColorWhite;
-  battery_layer->layer = layer;
   layer_set_clips(layer, false);
-  battery_layer->bolt_path = generate_bolt_path(rect);
-  
   layer_set_update_proc(battery_layer->layer, draw_battery);
   
   return battery_layer;

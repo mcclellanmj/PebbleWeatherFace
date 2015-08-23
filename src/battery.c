@@ -2,15 +2,15 @@
 #include "battery.h"
 #include "util.h"
 
-Layer* battery_layer_get_layer(BatteryLayer *battery_layer) {
+Layer *battery_layer_get_layer(BatteryLayer *battery_layer) {
   return battery_layer->layer;
 }
 
 static GPathInfo* generate_bolt_path(GRect rect) {
   uint16_t height = rect.size.h;
   // uint16_t width = rect.size.w; // Needs to be used
-  uint16_t left_bolt = scale_length(height, 58);
-  uint16_t right_bolt = scale_length(height, 42);
+  uint16_t left_bolt = scale_length(height, 0.58f);
+  uint16_t right_bolt = scale_length(height, 0.42f);
   
   uint8_t size = 7;
   GPoint *points = malloc(sizeof(GPoint) * size);
@@ -41,7 +41,7 @@ static void draw_battery(Layer *layer, GContext *ctx) {
   GRect battery_nipple = GRect(battery_outline.size.w, (full_bounds.size.h/2) - 3, 2, (full_bounds.size.h/2) + 1);
   GRect battery_level_bounds = grect_crop(battery_outline, 3);
   
-  battery_level_bounds.size.w = scale_length(battery_level_bounds.size.w, battery_layer->battery_state.charge_percent);
+  battery_level_bounds.size.w = scale_length_using_int(battery_level_bounds.size.w, battery_layer->battery_state.charge_percent);
   
   // Draw the outside of the battery
   graphics_context_set_stroke_color(ctx, battery_layer->foreground_color);

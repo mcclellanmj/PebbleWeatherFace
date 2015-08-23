@@ -1,19 +1,31 @@
 #pragma once
+#include <pebble.h>
+
+enum WeatherStatus {AVAILABLE, ERROR, NOT_REQUESTED, REQUESTING};
+enum WindDir {NORTH, NORTH_EAST, EAST, SOUTH_EAST, SOUTH, SOUTH_WEST, WEST, NORTH_WEST};
+enum WeatherIcon {GOOD, BAD};
 
 typedef struct {
   uint8_t temperature;
-  enum {NORTH, NORTH_EAST, EAST, SOUTH_EAST, SOUTH, SOUTH_WEST, WEST, NORTH_WEST} wind_dir;
+  enum WindDir wind_dir;
   uint8_t wind_speed;
-} WeatherShortDetail;
+} CurrentWeather;
+
+// TODO: Need to fill this in probably two arrays, one temp and one rain chance
+typedef struct {
+  bool who_dat;
+} HourlyWeather;
   
 typedef struct {
-  enum {AVAILABLE, ERROR, NOT_REQUESTED, REQUESTING} status;
-  WeatherShortDetail detail;
-} WeatherShort; 
+  enum WeatherStatus status;
+  enum WeatherIcon icon;
+  CurrentWeather current_weather;
+  HourlyWeather hourly_weather;
+} Weather;
 
 typedef struct {
-  Layer *layer;
-  WeatherShort current_weather;
+  Layer* layer;
+  Weather weather;
   GColor foreground_color;
   GColor background_color;
 } CurrentWeatherLayer;
@@ -21,6 +33,6 @@ typedef struct {
 
 CurrentWeatherLayer* current_weather_layer_create_layer(GRect frame, WeatherShort current_weather);
 void current_weather_layer_destroy(CurrentWeatherLayer *current_weather_layer);
-Layer* current_weather_layer_get_layer(CurrentWeatherLayer *current_weather_layer);
 void current_weather_layer_set_foreground_color(CurrentWeatherLayer *current_weather_layer, GColor foreground_color);
 void current_weather_layer_set_bluetooth_state(CurrentWeatherLayer *current_weather_layer, WeatherShort current_weather);
+Layer* current_weather_layer_get_layer(CurrentWeatherLayer *current_weather_layer);

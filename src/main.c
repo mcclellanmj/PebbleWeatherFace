@@ -129,7 +129,7 @@ static void handle_bluetooth_change(bool connected) {
   vibes_enqueue_custom_pattern(get_vibe_pattern(connected));
 }
 
-static void handle_init(void) {
+static void handle_init() {
   parts = malloc(sizeof(*parts));
   *parts = (struct Parts) {
     .main_window = window_create(),
@@ -145,13 +145,13 @@ static void handle_init(void) {
   });
   
   window_stack_push(parts->main_window, true);
-  
+
   tick_timer_service_subscribe(MINUTE_UNIT, handle_minute_tick);
   battery_state_service_subscribe(handle_battery_change);
   bluetooth_connection_service_subscribe(handle_bluetooth_change);
 }
 
-static void handle_deinit(void) {
+static void handle_deinit() {
   window_destroy(parts->main_window);
   free(parts);
 }

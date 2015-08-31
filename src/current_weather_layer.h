@@ -8,6 +8,7 @@ enum WeatherIcon {GOOD, BAD};
 typedef struct {
   uint8_t temperature;
   enum WindDir wind_dir;
+  enum WeatherIcon icon;
   uint8_t wind_speed;
 } CurrentWeather;
 
@@ -18,7 +19,6 @@ typedef struct {
   
 typedef struct {
   enum WeatherStatus status;
-  enum WeatherIcon icon;
   CurrentWeather current_weather;
   HourlyWeather hourly_weather;
 } Weather;
@@ -31,8 +31,8 @@ typedef struct {
 } CurrentWeatherLayer;
 
 
-CurrentWeatherLayer* current_weather_layer_create_layer(GRect frame, WeatherShort current_weather);
+CurrentWeatherLayer* current_weather_layer_create_layer(GRect frame, Weather current_weather);
 void current_weather_layer_destroy(CurrentWeatherLayer *current_weather_layer);
 void current_weather_layer_set_foreground_color(CurrentWeatherLayer *current_weather_layer, GColor foreground_color);
-void current_weather_layer_set_bluetooth_state(CurrentWeatherLayer *current_weather_layer, WeatherShort current_weather);
+void current_weather_layer_set_weather(CurrentWeatherLayer *current_weather_layer, Weather current_weather);
 Layer* current_weather_layer_get_layer(CurrentWeatherLayer *current_weather_layer);

@@ -28,7 +28,7 @@ const VibePattern RECONNECT_PATTERN = {
 struct Parts *parts;
 
 static TimeInfo get_current_time(const struct tm *tick_time) {
-  TimeInfo time_info;
+  static TimeInfo time_info;
   
   // Generate the time
   static char time_buffer[6];

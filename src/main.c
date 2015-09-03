@@ -1,6 +1,7 @@
 #include <pebble.h>
 #include "battery.h"
 #include "bluetooth_layer.h"
+#include "current_weather_layer.h"
 
 struct Parts {
   Window *main_window;
@@ -8,6 +9,7 @@ struct Parts {
   TextLayer *date_layer;
   BatteryLayer *battery_layer;
   BluetoothLayer *bluetooth_layer;
+  CurrentWeatherLayer *current_weather_layer;
 };
 
 typedef struct {
@@ -62,6 +64,15 @@ static void handle_minute_tick(struct tm *tick_time, TimeUnits units_changed) {
   update_time(parts, tick_time);
 }
 
+static Weather initial_weather() {
+  Weather* the_weather = malloc(sizeof(Weather));
+  return *the_weather;
+}
+
+static CurrentWeatherLayer* create_current_weather_layer() {
+  return current_weather_layer_create_layer(GRect(0, 43, 144, 125), initial_weather());
+}
+
 static BluetoothLayer* create_bluetooth_layer() {
   bool connected = bluetooth_connection_service_peek();
   BluetoothLayer *bluetooth_layer = bluetooth_layer_create_layer(GRect(122, 29, 17, 13), connected);
@@ -103,6 +114,7 @@ static void window_load(Window *window) {
   layer_add_child(window_layer, bluetooth_layer_get_layer(parts->bluetooth_layer));
   layer_add_child(window_layer, text_layer_get_layer(parts->date_layer));
   layer_add_child(window_layer, text_layer_get_layer(parts->time_layer));
+  layer_add_child(window_layer, current_weather_layer_get_layer(parts->current_weather_layer));
 }
 
 static void window_unload(Window *window) {
@@ -110,6 +122,7 @@ static void window_unload(Window *window) {
   text_layer_destroy(parts->date_layer);
   battery_layer_destroy(parts->battery_layer);
   bluetooth_layer_destroy(parts->bluetooth_layer);
+  current_weather_layer_destroy(parts->current_weather_layer);
 }
 
 static void handle_battery_change(BatteryChargeState charge_state) {
@@ -136,7 +149,8 @@ static void handle_init() {
     .time_layer = create_time_layer(),
     .date_layer = create_date_layer(),
     .battery_layer = create_battery_layer(),
-    .bluetooth_layer = create_bluetooth_layer()
+    .bluetooth_layer = create_bluetooth_layer(),
+    .current_weather_layer = create_current_weather_layer()
   };
   
   window_set_window_handlers(parts->main_window, (WindowHandlers) {

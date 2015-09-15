@@ -66,11 +66,15 @@ static void handle_minute_tick(struct tm *tick_time, TimeUnits units_changed) {
 
 static Weather initial_weather() {
   Weather* the_weather = malloc(sizeof(Weather));
+
+  the_weather->current_weather.temperature = -85;
+  the_weather->current_weather.wind_speed = 15;
+  the_weather->current_weather.wind_dir = 180;
   return *the_weather;
 }
 
 static CurrentWeatherLayer* create_current_weather_layer() {
-  return current_weather_layer_create_layer(GRect(0, 43, 144, 125), initial_weather());
+  return current_weather_layer_create_layer(GRect(0, 63, 144, 125), initial_weather());
 }
 
 static BluetoothLayer* create_bluetooth_layer() {

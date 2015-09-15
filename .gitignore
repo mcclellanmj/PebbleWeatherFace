@@ -3,3 +3,4 @@ CMakeLists.txt
 wscript
 .lock-waf_linux2_build
 wscript.backup
+build

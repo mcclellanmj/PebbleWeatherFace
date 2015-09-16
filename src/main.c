@@ -69,7 +69,7 @@ static Weather initial_weather() {
 
   the_weather->current_weather.temperature = -85;
   the_weather->current_weather.wind_speed = 15;
-  the_weather->current_weather.wind_dir = 180;
+  the_weather->current_weather.wind_dir = 250;
   return *the_weather;
 }
 

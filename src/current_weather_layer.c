@@ -20,18 +20,18 @@ static GBitmap* get_icon_for(const enum WeatherIcon icon) {
   return NULL;
 }
 
-static void draw_arrow(GContext* ctx, GPoint origin) {
-  uint32_t size = 8;
+static void draw_arrow(GContext* ctx, GPoint origin, uint8_t direction) {
+  uint32_t size = 7;
 
   GPoint* points = malloc(sizeof(GPoint) * size);
-  points[0] = (GPoint) {5, 0};
-  points[1] = (GPoint) {10, 5};
-  points[2] = (GPoint) {7, 5};
-  points[3] = (GPoint) {7, 15};
-  points[4] = (GPoint) {3, 15};
-  points[5] = (GPoint) {3, 5};
-  points[6] = (GPoint) {0, 5};
-  points[7] = (GPoint) {5, 0};
+
+  points[0] = (GPoint) {0, -8};
+  points[1] = (GPoint) {5, -2};
+  points[2] = (GPoint) {3, -2};
+  points[3] = (GPoint) {3, 8};
+  points[4] = (GPoint) {-3, 8};
+  points[5] = (GPoint) {-3, -2};
+  points[6] = (GPoint) {-5, -2};
 
   GPathInfo *path_info = malloc(sizeof(GPathInfo));
   *path_info = (GPathInfo) {
@@ -40,7 +40,10 @@ static void draw_arrow(GContext* ctx, GPoint origin) {
   };
 
   GPath* path = gpath_create(path_info);
+  graphics_context_set_stroke_color(ctx, GColorWhite);
+  graphics_context_set_fill_color(ctx, GColorWhite);
   gpath_move_to(path, origin);
+  gpath_rotate_to(path, TRIG_MAX_ANGLE / 360 * 180);
   gpath_draw_filled(ctx, path);
 }
 
@@ -49,8 +52,6 @@ static void draw_weather_icon(const CurrentWeatherLayer* weather_layer, GContext
 }
 
 static void draw_temperature(char* temperature, GContext* ctx) {
-  GFont font = font_for(TEMPERATURE);
-
   graphics_draw_text( ctx
                     , temperature
                     , font_for(TEMPERATURE)
@@ -70,7 +71,7 @@ static void draw_wind(char* speed, uint8_t direction, GContext* ctx) {
                     , GTextAlignmentLeft
                     , NULL);
 
-  draw_arrow(ctx, GPoint(145, 45));
+  draw_arrow(ctx, GPoint(114, 50), direction);
 }
 
 static void draw_weather(Layer* layer, GContext* ctx) {
@@ -81,7 +82,7 @@ static void draw_weather(Layer* layer, GContext* ctx) {
   snprintf(temp, 5, "%d", weather_layer->weather.current_weather.temperature);
   draw_temperature(temp, ctx);
 
-  char speed [4];
+  char speed[4];
   snprintf(speed, 4, "%d", weather_layer->weather.current_weather.wind_speed);
   uint8_t direction = weather_layer->weather.current_weather.wind_dir;
   draw_wind(speed, direction, ctx);

@@ -58,7 +58,7 @@ static void draw_arrow(GContext* ctx, GPoint origin, uint8_t direction) {
 }
 
 static void draw_weather_icon(const CurrentWeatherLayer* weather_layer, GContext* ctx) {
-  const GRect position = GRect(15, 10, SUB_BITMAP_SIZE, SUB_BITMAP_SIZE);
+  const GRect position = GRect(15, 8, SUB_BITMAP_SIZE, SUB_BITMAP_SIZE);
 
   graphics_draw_bitmap_in_rect(
           ctx,

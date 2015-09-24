@@ -26,6 +26,7 @@ typedef struct {
 typedef struct {
   Layer* layer;
   Weather weather;
+  GBitmap* icons_bitmap;
   GColor foreground_color;
   GColor background_color;
 } CurrentWeatherLayer;

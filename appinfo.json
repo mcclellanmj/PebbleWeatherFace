@@ -9,8 +9,8 @@
   "resources": {
     "media": [
       {
-        "file": "images/45x45.png",
-        "name": "WEATHER_ICONS_45X45",
+        "file": "images/60x60.png",
+        "name": "WEATHER_ICONS_60X60",
         "type": "png"
       }
     ]

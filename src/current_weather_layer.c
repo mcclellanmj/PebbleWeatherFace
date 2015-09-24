@@ -3,6 +3,7 @@
 #include "util.h"
 
 enum WeatherFonts { TEMPERATURE, WIND_SPEED };
+static const uint8_t SUB_BITMAP_SIZE = 60;
 
 static inline GFont font_for(const enum WeatherFonts fonts) {
   APP_LOG(APP_LOG_LEVEL_DEBUG, "Getting the font");
@@ -12,12 +13,21 @@ static inline GFont font_for(const enum WeatherFonts fonts) {
     case WIND_SPEED:
       return fonts_get_system_font(FONT_KEY_GOTHIC_24_BOLD);
     default:
+      // TODO: Needs to create an error message and stop
       return NULL;
   }
 }
 
-static GBitmap* get_icon_for(const enum WeatherIcon icon) {
-  return NULL;
+static GBitmap* get_icon_for(const enum WeatherIcon icon, const GBitmap* parent_bitmap) {
+    switch(icon) {
+        case GOOD:
+            return gbitmap_create_as_sub_bitmap(parent_bitmap, GRect(0, 0, SUB_BITMAP_SIZE, SUB_BITMAP_SIZE));
+        default:
+            return gbitmap_create_as_sub_bitmap(parent_bitmap, GRect(SUB_BITMAP_SIZE, 0, SUB_BITMAP_SIZE, SUB_BITMAP_SIZE));
+    }
+
+    // TODO: Needs to create an error message and stop the app here
+    return NULL;
 }
 
 static void draw_arrow(GContext* ctx, GPoint origin, uint8_t direction) {
@@ -48,7 +58,12 @@ static void draw_arrow(GContext* ctx, GPoint origin, uint8_t direction) {
 }
 
 static void draw_weather_icon(const CurrentWeatherLayer* weather_layer, GContext* ctx) {
-  graphics_draw_bitmap_in_rect(ctx, get_icon_for(weather_layer->weather.current_weather.icon), GRect(0, 0, 50, 50));
+  const GRect position = GRect(15, 10, SUB_BITMAP_SIZE, SUB_BITMAP_SIZE);
+
+  graphics_draw_bitmap_in_rect(
+          ctx,
+          get_icon_for(weather_layer->weather.current_weather.icon, weather_layer->icons_bitmap),
+          position);
 }
 
 static void draw_temperature(char* temperature, GContext* ctx) {
@@ -74,6 +89,7 @@ static void draw_wind(char* speed, uint8_t direction, GContext* ctx) {
   draw_arrow(ctx, GPoint(114, 50), direction);
 }
 
+// TODO: These layers should be split into sub layers to prevent too much work
 static void draw_weather(Layer* layer, GContext* ctx) {
   APP_LOG(APP_LOG_LEVEL_DEBUG, "Drawing the weather");
   CurrentWeatherLayer* weather_layer = layer_get_data(layer);
@@ -86,6 +102,8 @@ static void draw_weather(Layer* layer, GContext* ctx) {
   snprintf(speed, 4, "%d", weather_layer->weather.current_weather.wind_speed);
   uint8_t direction = weather_layer->weather.current_weather.wind_dir;
   draw_wind(speed, direction, ctx);
+
+  draw_weather_icon(weather_layer, ctx);
 }
 
 CurrentWeatherLayer* current_weather_layer_create_layer(GRect frame, Weather current_weather) {
@@ -93,6 +111,7 @@ CurrentWeatherLayer* current_weather_layer_create_layer(GRect frame, Weather cur
   CurrentWeatherLayer* weather_layer = layer_get_data(layer);
 
   weather_layer->layer = layer;
+  weather_layer->icons_bitmap = gbitmap_create_with_resource(RESOURCE_ID_WEATHER_ICONS_60X60);
   weather_layer->background_color = GColorClear;
   weather_layer->foreground_color = GColorWhite;
   weather_layer->weather = current_weather;

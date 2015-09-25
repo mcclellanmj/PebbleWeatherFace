@@ -12,6 +12,11 @@ typedef struct {
   uint8_t wind_speed;
 } CurrentWeather;
 
+typedef struct {
+    GPathInfo* arrow_path;
+    GBitmap* icons_bitmap;
+} LazyLoadState;
+
 // TODO: Need to fill this in probably two arrays, one temp and one rain chance
 typedef struct {
   bool who_dat;
@@ -26,9 +31,9 @@ typedef struct {
 typedef struct {
   Layer* layer;
   Weather weather;
-  GBitmap* icons_bitmap;
   GColor foreground_color;
   GColor background_color;
+  LazyLoadState initialized_state;
 } CurrentWeatherLayer;
 
 

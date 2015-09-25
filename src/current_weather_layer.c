@@ -3,10 +3,10 @@
 #include "util.h"
 
 enum WeatherFonts { TEMPERATURE, WIND_SPEED };
+
 static const uint8_t SUB_BITMAP_SIZE = 60;
 
 static inline GFont font_for(const enum WeatherFonts fonts) {
-  APP_LOG(APP_LOG_LEVEL_DEBUG, "Getting the font");
   switch(fonts) {
     case TEMPERATURE:
       return fonts_get_system_font(FONT_KEY_BITHAM_34_MEDIUM_NUMBERS);
@@ -30,7 +30,7 @@ static GBitmap* get_icon_for(const enum WeatherIcon icon, const GBitmap* parent_
     return NULL;
 }
 
-static void draw_arrow(GContext* ctx, GPoint origin, uint8_t direction) {
+static struct GPathInfo* create_arrow_path() {
   uint32_t size = 7;
 
   GPoint* points = malloc(sizeof(GPoint) * size);
@@ -49,21 +49,33 @@ static void draw_arrow(GContext* ctx, GPoint origin, uint8_t direction) {
           .points = points
   };
 
+  return path_info;
+}
+
+static void draw_arrow(GContext* ctx, GPoint origin, uint8_t direction, LazyLoadState state) {
+  GPathInfo *path_info = state.arrow_path;
+
   GPath* path = gpath_create(path_info);
   graphics_context_set_stroke_color(ctx, GColorWhite);
   graphics_context_set_fill_color(ctx, GColorWhite);
   gpath_move_to(path, origin);
-  gpath_rotate_to(path, TRIG_MAX_ANGLE / 360 * 180);
+  gpath_rotate_to(path, TRIG_MAX_ANGLE / 360 * direction);
   gpath_draw_filled(ctx, path);
+
+  free(path);
 }
 
 static void draw_weather_icon(const CurrentWeatherLayer* weather_layer, GContext* ctx) {
   const GRect position = GRect(15, 8, SUB_BITMAP_SIZE, SUB_BITMAP_SIZE);
 
+  GBitmap* bitmap = get_icon_for(weather_layer->weather.current_weather.icon, weather_layer->initialized_state.icons_bitmap);
+
   graphics_draw_bitmap_in_rect(
           ctx,
-          get_icon_for(weather_layer->weather.current_weather.icon, weather_layer->icons_bitmap),
+          bitmap,
           position);
+
+  gbitmap_destroy(bitmap);
 }
 
 static void draw_temperature(char* temperature, GContext* ctx) {
@@ -77,7 +89,7 @@ static void draw_temperature(char* temperature, GContext* ctx) {
 
 }
 
-static void draw_wind(char* speed, uint8_t direction, GContext* ctx) {
+static void draw_wind(char* speed, uint8_t direction, GContext* ctx, LazyLoadState state) {
   graphics_draw_text( ctx
                     , speed
                     , font_for(WIND_SPEED)
@@ -86,7 +98,7 @@ static void draw_wind(char* speed, uint8_t direction, GContext* ctx) {
                     , GTextAlignmentLeft
                     , NULL);
 
-  draw_arrow(ctx, GPoint(114, 50), direction);
+  draw_arrow(ctx, GPoint(114, 50), direction, state);
 }
 
 // TODO: These layers should be split into sub layers to prevent too much work
@@ -101,7 +113,7 @@ static void draw_weather(Layer* layer, GContext* ctx) {
   char speed[4];
   snprintf(speed, 4, "%d", weather_layer->weather.current_weather.wind_speed);
   uint8_t direction = weather_layer->weather.current_weather.wind_dir;
-  draw_wind(speed, direction, ctx);
+  draw_wind(speed, direction, ctx, weather_layer->initialized_state);
 
   draw_weather_icon(weather_layer, ctx);
 }
@@ -111,10 +123,11 @@ CurrentWeatherLayer* current_weather_layer_create_layer(GRect frame, Weather cur
   CurrentWeatherLayer* weather_layer = layer_get_data(layer);
 
   weather_layer->layer = layer;
-  weather_layer->icons_bitmap = gbitmap_create_with_resource(RESOURCE_ID_WEATHER_ICONS_60X60);
   weather_layer->background_color = GColorClear;
   weather_layer->foreground_color = GColorWhite;
   weather_layer->weather = current_weather;
+  weather_layer->initialized_state.arrow_path = create_arrow_path();
+  weather_layer->initialized_state.icons_bitmap = gbitmap_create_with_resource(RESOURCE_ID_WEATHER_ICONS_60X60);
 
   layer_set_update_proc(layer, draw_weather);
   return weather_layer;
@@ -125,6 +138,8 @@ Layer* current_weather_layer_get_layer(CurrentWeatherLayer *current_weather_laye
 }
 
 void current_weather_layer_destroy(CurrentWeatherLayer* current_weather_layer) {
+  free(current_weather_layer->initialized_state.arrow_path);
+  gbitmap_destroy(current_weather_layer->initialized_state.icons_bitmap);
   layer_destroy(current_weather_layer->layer);
 }
 

@@ -1,4 +1,4 @@
-var API_KEY = "{YOUR-API-KEY}";
+var API_KEY = "%WEATHER_UNDERGROUND_KEY%";
 
 var locationOptions = {
   enableHighAccuracy: false, 

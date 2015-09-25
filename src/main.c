@@ -147,6 +147,10 @@ static void handle_bluetooth_change(bool connected) {
   vibes_enqueue_custom_pattern(get_vibe_pattern(connected));
 }
 
+static void inbox_received_handler(DictionaryIterator *iterator, void *context) {
+  // TODO: Log or something
+}
+
 static void handle_init() {
   parts = malloc(sizeof(*parts));
   *parts = (struct Parts) {
@@ -162,6 +166,9 @@ static void handle_init() {
     .load = window_load,
     .unload = window_unload,
   });
+
+  app_message_register_inbox_received(inbox_received_handler);
+  app_message_open(app_message_inbox_size_maximum(), app_message_outbox_size_maximum());
   
   window_stack_push(parts->main_window, true);
 

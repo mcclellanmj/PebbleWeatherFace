@@ -4,3 +4,4 @@ wscript
 .lock-waf_linux2_build
 wscript.backup
 build
+compile_js.pyc

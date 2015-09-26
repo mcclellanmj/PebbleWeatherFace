@@ -2,15 +2,12 @@ var API_KEY = "%WEATHER_UNDERGROUND_KEY%";
 function emptyState(statusCode) {
   return {
     "statusCode" : statusCode,
-    "weather" : {
-      "currentWeather" : {},
-      "forecastWeather" : []
-    }
+    "weather" : []
   };
 }
 
-var initialState = emptyState(-1);
-var failureState = emptyState(-1);
+var initialState = emptyState(1);
+var failureState = emptyState(2);
 var weatherState = initialState;
 
 var locationOptions = {
@@ -33,6 +30,10 @@ function makeRequest(method, url, callback, errCallback) {
 
 var Weather = {
   retrieve : function(position) {
+    function generateUrl(lat, lon) {
+      return "http://api.wunderground.com/api/" + API_KEY + "/hourly/q/" + lat + "," + lon + ".json";
+    }
+
     var latitude = position.coords.latitude;
     var longitude = position.coords.longitude;
     console.log('lat=[' + latitude + '], lon=[' + longitude + ']');
@@ -46,12 +47,12 @@ var Weather = {
   retrieveSuccess : function(req) {
     // TODO: Check req status code for error
     weatherState = apiResponseToState(JSON.parse(req.responseText));
-    sendWeatherState(weatherState);
+    sendWeatherStatus(weatherState);
   },
   
   retrieveFailure : function(req) {
     weatherState = failureState;
-    sendWeatherState(weatherState);
+    sendWeatherStatus(weatherState);
   },
   
   iconToOffset : function(icon) {
@@ -71,32 +72,19 @@ var Weather = {
   }
 };
 
-function generateUrl(lat, lon) {
-  return "http://api.wunderground.com/api/" + API_KEY + "/hourly/q/" + lat + "," + lon + ".json";
-}
-
 function apiResponseToState(jsonObject) {
   var hourly = jsonObject.hourly_forecast;
-  var currentWeather = Weather.toShortWeather(hourly[0]);
-  var forecast = hourly.slice(1, 13).map(Weather.toShortWeather, Weather);
   
   return {
     "statusCode" : 0,
-    "weather" : {
-      "currentWeather" : currentWeather,
-      "forecastWeather" : forecast
-    }
+    "weather" : hourly.slice(0, 13).map(Weather.toShortWeather, Weather)
   };
 }
 
-function sendMessage(type, message) {
-  message.type = type;
-  Pebble.sendAppMessage(message);
-  console.log("Sent request of type [" + type + "] to watch, full message is [" + message + "]");
-}
-
-function sendWeatherState(weatherState) {
-  sendMessage("WeatherStatus", {"statusCode" : weatherState.statusCode});
+function sendWeatherStatus(weatherState) {
+  Pebble.sendAppMessage({
+    "WEATHER_STATUS_CODE" : weatherState.statusCode
+  });
 }
 
 function locationError(error) {
@@ -110,7 +98,7 @@ Pebble.addEventListener('ready',
   }
 );
 
-Pebble.addEventListener('fetch_weather', 
+Pebble.addEventListener('appmessage', 
   function(e) {
     console.log('Got request to fetch weather');
     navigator.geolocation.getCurrentPosition(Weather.retrieve.bind(Weather), locationError, locationOptions);

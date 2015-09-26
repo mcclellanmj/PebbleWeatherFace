@@ -1,5 +1,14 @@
 {
-    "appKeys": {},
+    "appKeys": {
+        "WEATHER_FETCH": 7,
+        "WEATHER_ICON_OFFSET": 5,
+        "WEATHER_INDEX": 1,
+        "WEATHER_PRECIP": 6,
+        "WEATHER_STATUS_CODE": 0,
+        "WEATHER_TEMP": 2,
+        "WEATHER_WIND_DIRECTION": 3,
+        "WEATHER_WIND_SPEED": 4
+    },
     "capabilities": [
         "location"
     ],
@@ -20,7 +29,7 @@
     "targetPlatforms": [
         "aplite"
     ],
-    "uuid": "57189c83-842c-4ef0-b8a1-a48d907a8942",
+    "uuid": "01a622b8-1ebb-4426-89e6-e5fec312c767",
     "versionLabel": "0.4",
     "watchapp": {
         "watchface": true

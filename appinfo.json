@@ -1,29 +1,28 @@
 {
-  "appKeys": {},
-  "capabilities": [
-    "location"
-  ],
-  "companyName": "mcclellan.mj@gmail.com",
-  "longName": "hourly-weather",
-  "projectType": "native",
-  "resources": {
-    "media": [
-      {
-        "file": "images/60x60.png",
-        "name": "WEATHER_ICONS_60X60",
-        "type": "png"
-      }
-    ]
-  },
-  "sdkVersion": "3",
-  "shortName": "hourly-weather",
-  "uuid": "57189c83-842c-4ef0-b8a1-a48d907a8942",
-  "versionCode": 1,
-  "versionLabel": "0.4",
-  "watchapp": {
-    "watchface": true
-  },
-  "targetPlatforms": [
-    "aplite"
-  ]
+    "appKeys": {},
+    "capabilities": [
+        "location"
+    ],
+    "companyName": "mcclellan.mj@gmail.com",
+    "longName": "hourly-weather",
+    "projectType": "native",
+    "resources": {
+        "media": [
+            {
+                "file": "images/60x60.png",
+                "name": "WEATHER_ICONS_60X60",
+                "type": "png"
+            }
+        ]
+    },
+    "sdkVersion": "3",
+    "shortName": "hourly-weather",
+    "targetPlatforms": [
+        "aplite"
+    ],
+    "uuid": "57189c83-842c-4ef0-b8a1-a48d907a8942",
+    "versionLabel": "0.4",
+    "watchapp": {
+        "watchface": true
+    }
 }

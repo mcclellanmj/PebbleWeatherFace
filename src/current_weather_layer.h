@@ -6,10 +6,10 @@ enum WindDir {NORTH, NORTH_EAST, EAST, SOUTH_EAST, SOUTH, SOUTH_WEST, WEST, NORT
 enum WeatherIcon {GOOD, BAD};
 
 typedef struct {
-  int8_t temperature;
+  int16_t temperature;
   enum WindDir wind_dir;
   enum WeatherIcon icon;
-  uint8_t wind_speed;
+  uint16_t wind_speed;
 } CurrentWeather;
 
 typedef struct {
@@ -19,7 +19,8 @@ typedef struct {
 
 // TODO: Need to fill this in probably two arrays, one temp and one rain chance
 typedef struct {
-  bool who_dat;
+  int16_t temperatures[12];
+  uint8_t rain_chances[12];
 } HourlyWeather;
   
 typedef struct {

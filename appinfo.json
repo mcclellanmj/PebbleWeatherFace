@@ -1,13 +1,14 @@
 {
     "appKeys": {
-        "WEATHER_FETCH": 7,
-        "WEATHER_ICON_OFFSET": 5,
-        "WEATHER_INDEX": 1,
-        "WEATHER_PRECIP": 6,
-        "WEATHER_STATUS_CODE": 0,
-        "WEATHER_TEMP": 2,
-        "WEATHER_WIND_DIRECTION": 3,
-        "WEATHER_WIND_SPEED": 4
+        "MESSAGE_TYPE": 8,
+        "WEATHER_FORECAST_PRECIP_CHANCE": 7,
+        "WEATHER_FORECAST_TEMPS": 6,
+        "WEATHER_ICON_OFFSET": 4,
+        "WEATHER_PRECIP": 5,
+        "WEATHER_STATUS": 0,
+        "WEATHER_TEMP": 1,
+        "WEATHER_WIND_DIRECTION": 2,
+        "WEATHER_WIND_SPEED": 3
     },
     "capabilities": [
         "location"

@@ -2,6 +2,10 @@
 #include "battery.h"
 #include "bluetooth_layer.h"
 #include "current_weather_layer.h"
+  
+enum {
+  KEY_REQUEST_TYPE = 0x08,
+};
 
 struct Parts {
   Window *main_window;
@@ -147,8 +151,38 @@ static void handle_bluetooth_change(bool connected) {
   vibes_enqueue_custom_pattern(get_vibe_pattern(connected));
 }
 
+static bool send_request() {
+  APP_LOG(APP_LOG_LEVEL_DEBUG, "Sending the Fetch Weather command to the phone");
+  
+  DictionaryIterator *iter;
+  app_message_outbox_begin(&iter);
+  if (iter == NULL) {
+    APP_LOG(APP_LOG_LEVEL_DEBUG, "null iter");
+    return false;
+  }
+
+  Tuplet tuple = TupletCString(8, "FETCH_WEATHER");
+  dict_write_tuplet(iter, &tuple);
+  dict_write_end(iter);
+
+  app_message_outbox_send();
+  APP_LOG(APP_LOG_LEVEL_DEBUG, "Finished the send");
+  return true;
+}
+
 static void inbox_received_handler(DictionaryIterator *iterator, void *context) {
-  // TODO: Log or something
+  Tuple *init_tuple = dict_find(iterator, KEY_REQUEST_TYPE);
+  char* request_type = init_tuple->value->cstring;
+  
+  APP_LOG(APP_LOG_LEVEL_DEBUG, "Got a message with request type [%s]", request_type);
+  
+  if(strcmp(request_type, "PHONE_READY") == 0) {
+    send_request();
+  }
+  
+  if(strcmp(request_type, "WEATHER_REPORT") == 0) {
+    // TODO: Parse the response and send the weather over to the draw layer
+  }
 }
 
 static void handle_init() {

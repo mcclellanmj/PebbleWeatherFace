@@ -4,7 +4,15 @@
 #include "current_weather_layer.h"
   
 enum {
-  KEY_REQUEST_TYPE = 0x08,
+  WEATHER_FORECAST_PRECIP_CHANCE = 7,
+  WEATHER_FORECAST_TEMPS = 6 ,
+  WEATHER_ICON_OFFSET = 4,
+  WEATHER_PRECIP = 5,
+  WEATHER_STATUS = 0,
+  WEATHER_TEMP = 1,
+  WEATHER_WIND_DIRECTION = 2,
+  WEATHER_WIND_SPEED = 3,
+  KEY_MESSAGE_TYPE = 8
 };
 
 struct Parts {
@@ -171,7 +179,7 @@ static bool send_request() {
 }
 
 static void inbox_received_handler(DictionaryIterator *iterator, void *context) {
-  Tuple *init_tuple = dict_find(iterator, KEY_REQUEST_TYPE);
+  Tuple *init_tuple = dict_find(iterator, KEY_MESSAGE_TYPE);
   char* request_type = init_tuple->value->cstring;
   
   APP_LOG(APP_LOG_LEVEL_DEBUG, "Got a message with request type [%s]", request_type);
@@ -181,6 +189,9 @@ static void inbox_received_handler(DictionaryIterator *iterator, void *context) 
   }
   
   if(strcmp(request_type, "WEATHER_REPORT") == 0) {
+    int16_t weather_temperature = dict_find(iterator, WEATHER_TEMP)->value->int16;
+    int16_t weather_wind_speed = dict_find(iterator, WEATHER_WIND_SPEED)->value->int16;
+    int16_t weather_wind_direction = dict_find(iterator, WEATHER_WIND_DIRECTION)->value->int16;
     // TODO: Parse the response and send the weather over to the draw layer
   }
 }

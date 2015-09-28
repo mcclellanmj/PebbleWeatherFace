@@ -95,7 +95,7 @@ var MessageHandler = {
   },
   handleMessage : function(message) {
     var messageType = message.MESSAGE_TYPE;
-    console.log("Got message from watch [" + message.MESSAGE_TYPE + "]");
+    console.log("Got message from watch with type [" + message.MESSAGE_TYPE + "]");
     
     var messageFn = this.messageFunctions[messageType];
     messageFn(message);
@@ -117,7 +117,6 @@ Pebble.addEventListener('ready',
 
 Pebble.addEventListener('appmessage', 
   function(e) {
-    console.log('Got message from watch');
     var msg = e.payload;
     MessageHandler.handleMessage.bind(MessageHandler)(msg);
   }

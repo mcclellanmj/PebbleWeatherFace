@@ -4,7 +4,7 @@
 
 enum WeatherFonts { TEMPERATURE, WIND_SPEED };
 
-static const uint8_t SUB_BITMAP_SIZE = 60;
+static const int8_t SUB_BITMAP_SIZE = 60;
 
 static inline GFont font_for(const enum WeatherFonts fonts) {
   switch(fonts) {
@@ -18,16 +18,13 @@ static inline GFont font_for(const enum WeatherFonts fonts) {
   }
 }
 
-static GBitmap* get_icon_for(const enum WeatherIcon icon, const GBitmap* parent_bitmap) {
-    switch(icon) {
-        case GOOD:
-            return gbitmap_create_as_sub_bitmap(parent_bitmap, GRect(0, 0, SUB_BITMAP_SIZE, SUB_BITMAP_SIZE));
-        default:
-            return gbitmap_create_as_sub_bitmap(parent_bitmap, GRect(SUB_BITMAP_SIZE, 0, SUB_BITMAP_SIZE, SUB_BITMAP_SIZE));
-    }
-
-    // TODO: Needs to create an error message and stop the app here
-    return NULL;
+static GBitmap* get_icon_for(const int8_t icon_offset, const GBitmap* parent_bitmap) {
+  int16_t x = (icon_offset % 5) * SUB_BITMAP_SIZE;
+  int16_t y = (icon_offset / 5) * SUB_BITMAP_SIZE;
+  
+  APP_LOG(APP_LOG_LEVEL_DEBUG, "Offset x is [%d] and y is [%d]", x, y);
+    
+  return gbitmap_create_as_sub_bitmap(parent_bitmap, GRect(x, y, SUB_BITMAP_SIZE, SUB_BITMAP_SIZE));
 }
 
 static struct GPathInfo* create_arrow_path() {
@@ -68,7 +65,7 @@ static void draw_arrow(GContext* ctx, GPoint origin, uint8_t direction, LazyLoad
 static void draw_weather_icon(const CurrentWeatherLayer* weather_layer, GContext* ctx) {
   const GRect position = GRect(15, 8, SUB_BITMAP_SIZE, SUB_BITMAP_SIZE);
 
-  GBitmap* bitmap = get_icon_for(weather_layer->weather.current_weather.icon, weather_layer->initialized_state.icons_bitmap);
+  GBitmap* bitmap = get_icon_for(weather_layer->weather.current_weather.icon_offset, weather_layer->initialized_state.icons_bitmap);
 
   graphics_draw_bitmap_in_rect(
           ctx,
@@ -150,4 +147,9 @@ void current_weather_layer_set_foreground_color(CurrentWeatherLayer* current_wea
 void current_weather_layer_set_weather(CurrentWeatherLayer* current_weather_layer,
                                                Weather current_weather) {
   current_weather_layer->weather = current_weather;
+  layer_mark_dirty(current_weather_layer->layer);
+}
+
+Weather current_weather_layer_get_weather(CurrentWeatherLayer *current_weather_layer) {
+  return current_weather_layer->weather;
 }

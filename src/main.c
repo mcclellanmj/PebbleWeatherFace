@@ -4,14 +4,14 @@
 #include "current_weather_layer.h"
   
 enum {
-  WEATHER_FORECAST_PRECIP_CHANCE = 7,
-  WEATHER_FORECAST_TEMPS = 6 ,
-  WEATHER_ICON_OFFSET = 4,
-  WEATHER_PRECIP = 5,
   WEATHER_STATUS = 0,
   WEATHER_TEMP = 1,
   WEATHER_WIND_DIRECTION = 2,
   WEATHER_WIND_SPEED = 3,
+  WEATHER_ICON_OFFSET = 4,
+  WEATHER_PRECIP = 5,
+  WEATHER_FORECAST_TEMPS = 6 ,
+  WEATHER_FORECAST_PRECIP_CHANCE = 7,
   KEY_MESSAGE_TYPE = 8
 };
 
@@ -82,7 +82,7 @@ static Weather initial_weather() {
   the_weather->current_weather.temperature = -85;
   the_weather->current_weather.wind_speed = 15;
   the_weather->current_weather.wind_dir = 250;
-  the_weather->current_weather.icon = BAD;
+  the_weather->current_weather.icon_offset = 0;
   return *the_weather;
 }
 
@@ -189,9 +189,20 @@ static void inbox_received_handler(DictionaryIterator *iterator, void *context) 
   }
   
   if(strcmp(request_type, "WEATHER_REPORT") == 0) {
+    // FIXME: This is prototype code, clean it up!
     int16_t weather_temperature = dict_find(iterator, WEATHER_TEMP)->value->int16;
     int16_t weather_wind_speed = dict_find(iterator, WEATHER_WIND_SPEED)->value->int16;
     int16_t weather_wind_direction = dict_find(iterator, WEATHER_WIND_DIRECTION)->value->int16;
+    int8_t icon_offset = dict_find(iterator, WEATHER_ICON_OFFSET)->value->int8;
+    APP_LOG(APP_LOG_LEVEL_DEBUG, "Got Weather with temp [%d], wind speed [%d], wind direction [%d], icon offset [%d]", weather_temperature, weather_wind_speed, weather_wind_direction, icon_offset);
+    Weather weather = current_weather_layer_get_weather(parts->current_weather_layer);
+    CurrentWeather *current_weather = &weather.current_weather;
+    current_weather->temperature = weather_temperature;
+    current_weather->wind_dir = weather_wind_direction;
+    current_weather->wind_speed = weather_wind_speed;
+    current_weather->icon_offset = icon_offset;
+    current_weather_layer_set_weather(parts->current_weather_layer, weather);
+    
     // TODO: Parse the response and send the weather over to the draw layer
   }
 }

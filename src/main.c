@@ -16,6 +16,13 @@ enum {
   WEATHER_FORECAST_START = 9
 };
 
+enum {
+  PHONE_READY = 0,
+  WEATHER_REPORT = 1,
+  FETCH_WEATHER = 2,
+  WEATHER_FAILED = 3
+};
+
 struct Parts {
   Window *main_window;
   TextLayer *time_layer;
@@ -61,7 +68,7 @@ static TimeInfo get_current_time(const struct tm *tick_time) {
 static void update_time(struct Parts *parts, const struct tm *tick_time) {
   TimeInfo time_info = get_current_time(tick_time);
   
-  APP_LOG(APP_LOG_LEVEL_DEBUG, "Tick time is %s", time_info.time_text);
+  APP_LOG(APP_LOG_LEVEL_DEBUG, "Tick time is [%s]", time_info.time_text);
   APP_LOG(APP_LOG_LEVEL_DEBUG, "Used heap is [%d]", heap_bytes_used());
   
   // Set the new times
@@ -170,7 +177,7 @@ static bool send_request() {
     return false;
   }
 
-  Tuplet tuple = TupletCString(8, "FETCH_WEATHER");
+  Tuplet tuple = TupletInteger(KEY_MESSAGE_TYPE, FETCH_WEATHER);
   dict_write_tuplet(iter, &tuple);
   dict_write_end(iter);
 
@@ -181,15 +188,15 @@ static bool send_request() {
 
 static void inbox_received_handler(DictionaryIterator *iterator, void *context) {
   Tuple *init_tuple = dict_find(iterator, KEY_MESSAGE_TYPE);
-  char* request_type = init_tuple->value->cstring;
+  uint8_t request_type = init_tuple->value->uint8;
   
-  APP_LOG(APP_LOG_LEVEL_DEBUG, "Got a message with request type [%s]", request_type);
+  APP_LOG(APP_LOG_LEVEL_DEBUG, "Got a message with request type [%d]", request_type);
   
-  if(strcmp(request_type, "PHONE_READY") == 0) {
+  if(request_type == PHONE_READY) {
     send_request();
   }
   
-  if(strcmp(request_type, "WEATHER_REPORT") == 0) {
+  if(request_type == WEATHER_REPORT) {
     // FIXME: This is prototype code, clean it up!
     int16_t weather_temperature = dict_find(iterator, WEATHER_TEMP)->value->int16;
     int16_t weather_wind_speed = dict_find(iterator, WEATHER_WIND_SPEED)->value->int16;

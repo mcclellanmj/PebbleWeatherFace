@@ -1,4 +1,5 @@
-var API_KEY = "%WEATHER_UNDERGROUND_KEY%";
+// var API_KEY = "%WEATHER_UNDERGROUND_KEY%";
+var API_KEY = "4eb1779d3afff1cf";
 
 var locationOptions = {
   enableHighAccuracy: false, 
@@ -17,6 +18,13 @@ function makeRequest(method, url, callback, errCallback) {
   
 	req.send();
 }
+
+var RequestTypes = {
+  "PHONE_READY" : 0,
+  "WEATHER_REPORT" : 1,
+  "FETCH_WEATHER" : 2,
+  "WEATHER_FAILED" : 3
+};
 
 var ByteConversions = {
   showBinaryForByte : function(byte) {
@@ -88,7 +96,7 @@ var Weather = {
 
     return {
       // TODO: MESSAGE_TYPE is needlessly wasting space, converting to an uint8 would be better
-      "MESSAGE_TYPE" : "WEATHER_REPORT",
+      "MESSAGE_TYPE" : RequestTypes.WEATHER_REPORT,
       "WEATHER_TEMP" : ByteConversions.toInt16ByteArray(currentWeather.temperature),
       "WEATHER_WIND_DIRECTION" : ByteConversions.toInt16ByteArray(currentWeather.windDirection),
       "WEATHER_WIND_SPEED" : ByteConversions.toInt16ByteArray(currentWeather.windSpeed),
@@ -147,21 +155,21 @@ function locationError(error) {
   console.log('Error code while fetching location [' + error.code + '].  [' + error.message + ']');
 }
 
-var MessageHandler = {
-  messageFunctions : {
-    "FETCH_WEATHER" : function(message) {
-      navigator.geolocation.getCurrentPosition(Weather.retrieve.bind(Weather), locationError, locationOptions);
-    }
-  },
-  handleMessage : function(message) {
-    var messageType = message.MESSAGE_TYPE;
-    console.log("Got message from watch with type [" + message.MESSAGE_TYPE + "]");
-    
-    var messageFn = this.messageFunctions[messageType];
-    messageFn(message);
-  }
-};
+function MessageHandler() {
+  this.messageFunctions = {};
+  
+  this.messageFunctions[RequestTypes.FETCH_WEATHER] = function(message) {
+    navigator.geolocation.getCurrentPosition(Weather.retrieve.bind(Weather), locationError, locationOptions);
+  };
+}
 
+MessageHandler.prototype.handleMessage = function(message) {
+  var messageType = message.MESSAGE_TYPE;
+  console.log("Got message from watch with type [" + message.MESSAGE_TYPE + "]");
+    
+  var messageFn = this.messageFunctions[messageType];
+  messageFn(message);
+};
 
 function sendWeatherModel(weatherModel) {
   console.log("Sending weather model [" + weatherModel + "]");
@@ -171,13 +179,14 @@ function sendWeatherModel(weatherModel) {
 Pebble.addEventListener('ready',
   function(e) { 
     console.log('JavaScript app ready and running!');
-    Pebble.sendAppMessage({"MESSAGE_TYPE": "PHONE_READY"});
+    Pebble.sendAppMessage({"MESSAGE_TYPE": RequestTypes.PHONE_READY});
   }
 );
 
+var messageHandler = new MessageHandler();
 Pebble.addEventListener('appmessage', 
   function(e) {
     var msg = e.payload;
-    MessageHandler.handleMessage.bind(MessageHandler)(msg);
+    messageHandler.handleMessage(msg);
   }
 );

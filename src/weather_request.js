@@ -41,37 +41,37 @@ var Weather = {
   extractPop : function(longWeather) { return longWeather.pop; },
   
   iconToOffsetMap : {
-    "Clear" : 0,
-    "Partly Cloudy" : 1,
-    "Mostly Cloudy" : 3,
-    "Cloudy" : 4,
-    "Hazy" : 9,
-    "Foggy" : 9,
-    "Very Hot" : 21,
-    "Very Cold" : 22,
-    "Blowing Snow" : 15,
-    "Chance of Showers" : 23,
-    "Showers" : 10,
-    "Chance of Rain" : 23,
-    "Rain" : 11,
-    "Chance of a Thunderstorm" : 19,
-    "Thunderstorm" : 20,
-    "Flurries" : 14,
-    "OMITTED" : 24,
-    "Chance of Snow Showers" : 17,
-    "Snow Showers" : 17,
-    "Chance of Snow" : 15,
-    "Snow" : 15,
-    "Chance of Ice Pellets" : 13,
-    "Ice Pellets" : 13,
-    "Blizzard" : 16,
+    "1" : 0,
+    "2" : 1,
+    "3" : 3,
+    "4" : 4,
+    "5" : 9,
+    "6" : 9,
+    "7" : 21,
+    "8" : 22,
+    "9" : 15,
+    "10" : 23,
+    "11" : 10,
+    "12" : 23,
+    "13" : 11,
+    "14" : 19,
+    "15" : 20,
+    "16" : 14,
+    "17" : 24,
+    "18" : 17,
+    "19" : 17,
+    "20" : 15,
+    "21" : 15,
+    "22" : 13,
+    "23" : 13,
+    "24" : 16,
     "ERROR" : 24
   },
   
-  getIconOffset : function(iconLabel) {
-    console.log("Finding icon offset for [" + iconLabel + "]");
-    if(iconLabel in this.iconToOffsetMap) {
-      return this.iconToOffsetMap[iconLabel];
+  getIconOffset : function(forecastCode) {
+    console.log("Finding icon offset for forecast code [" + forecastCode + "]");
+    if(forecastCode in this.iconToOffsetMap) {
+      return this.iconToOffsetMap[forecastCode];
     }
     
     return this.iconToOffsetMap.ERROR;
@@ -81,7 +81,7 @@ var Weather = {
     var hourly = jsonObject.hourly_forecast;
     var currentWeather = this.toShortWeather(hourly[0]);
 
-    var iconOffset = this.getIconOffset(currentWeather.condition);
+    var iconOffset = this.getIconOffset(currentWeather.forecastCode);
     var forecastPieces = hourly.slice(1, 13);
     var forecastTemps = forecastPieces.map(this.extractTemp, this);
     var forecastPrecip = forecastPieces.map(this.extractPop, this);
@@ -93,6 +93,7 @@ var Weather = {
       "WEATHER_WIND_DIRECTION" : ByteConversions.toInt16ByteArray(currentWeather.windDirection),
       "WEATHER_WIND_SPEED" : ByteConversions.toInt16ByteArray(currentWeather.windSpeed),
       "WEATHER_ICON_OFFSET" : ByteConversions.toInt8ByteArray(iconOffset),
+      "WEATHER_FORECAST_START" : ByteConversions.toInt8ByteArray(forecastPieces[0].FCTTIME.hour),
       "WEATHER_FORECAST_PRECIP_CHANCE" : [].concat.apply([], forecastPrecip.map(ByteConversions.toInt16ByteArray)),
       "WEATHER_FORECAST_TEMPS" : [].concat.apply([], forecastTemps.map(ByteConversions.toInt16ByteArray))
     };
@@ -134,7 +135,7 @@ var Weather = {
     return {
       "time" : longWeather.FCTTIME.hour,
       "temperature" : longWeather.temp.english,
-      "condition" : longWeather.condition,
+      "forecastCode" : longWeather.fctcode,
       "windSpeed" : longWeather.wspd.english,
       "windDirection" : longWeather.wdir.degrees,
       "pop" : longWeather.pop
@@ -170,13 +171,6 @@ function sendWeatherModel(weatherModel) {
 Pebble.addEventListener('ready',
   function(e) { 
     console.log('JavaScript app ready and running!');
-    
-    var numbersToTest = [128, -127, 0, 4, 8];
-    numbersToTest.forEach(function(number) {
-      var array = ByteConversions.toInt16ByteArray(number);
-      array = array.map(ByteConversions.showBinaryForByte.bind(ByteConversions));
-      console.log("Result for [" + number + "] is [" + array[1].toString(2) + array[0].toString(2) + "]");
-    });
     Pebble.sendAppMessage({"MESSAGE_TYPE": "PHONE_READY"});
   }
 );

@@ -7,7 +7,7 @@ enum WindDir {NORTH, NORTH_EAST, EAST, SOUTH_EAST, SOUTH, SOUTH_WEST, WEST, NORT
 typedef struct {
   int16_t temperature;
   int16_t wind_dir;
-  int8_t icon_offset;
+  uint8_t icon_offset;
   int16_t wind_speed;
 } CurrentWeather;
 

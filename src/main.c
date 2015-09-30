@@ -12,7 +12,8 @@ enum {
   WEATHER_PRECIP = 5,
   WEATHER_FORECAST_TEMPS = 6 ,
   WEATHER_FORECAST_PRECIP_CHANCE = 7,
-  KEY_MESSAGE_TYPE = 8
+  KEY_MESSAGE_TYPE = 8,
+  WEATHER_FORECAST_START = 9
 };
 
 struct Parts {
@@ -193,7 +194,7 @@ static void inbox_received_handler(DictionaryIterator *iterator, void *context) 
     int16_t weather_temperature = dict_find(iterator, WEATHER_TEMP)->value->int16;
     int16_t weather_wind_speed = dict_find(iterator, WEATHER_WIND_SPEED)->value->int16;
     int16_t weather_wind_direction = dict_find(iterator, WEATHER_WIND_DIRECTION)->value->int16;
-    int8_t icon_offset = dict_find(iterator, WEATHER_ICON_OFFSET)->value->int8;
+    int8_t icon_offset = dict_find(iterator, WEATHER_ICON_OFFSET)->value->uint8;
     APP_LOG(APP_LOG_LEVEL_DEBUG, "Got Weather with temp [%d], wind speed [%d], wind direction [%d], icon offset [%d]", weather_temperature, weather_wind_speed, weather_wind_direction, icon_offset);
     Weather weather = current_weather_layer_get_weather(parts->current_weather_layer);
     CurrentWeather *current_weather = &weather.current_weather;

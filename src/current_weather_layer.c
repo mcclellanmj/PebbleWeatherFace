@@ -18,11 +18,11 @@ static inline GFont font_for(const enum WeatherFonts fonts) {
   }
 }
 
-static GBitmap* get_icon_for(const int8_t icon_offset, const GBitmap* parent_bitmap) {
-  int16_t x = (icon_offset % 5) * SUB_BITMAP_SIZE;
-  int16_t y = (icon_offset / 5) * SUB_BITMAP_SIZE;
+static GBitmap* get_icon_for(const uint8_t icon_offset, const GBitmap* parent_bitmap) {
+  uint8_t x = (icon_offset % 5) * SUB_BITMAP_SIZE;
+  uint8_t y = (icon_offset / 5) * SUB_BITMAP_SIZE;
   
-  APP_LOG(APP_LOG_LEVEL_DEBUG, "Offset x is [%d] and y is [%d]", x, y);
+  APP_LOG(APP_LOG_LEVEL_DEBUG, "Calculated icon offset x is [%d] and y is [%d]", x, y);
     
   return gbitmap_create_as_sub_bitmap(parent_bitmap, GRect(x, y, SUB_BITMAP_SIZE, SUB_BITMAP_SIZE));
 }

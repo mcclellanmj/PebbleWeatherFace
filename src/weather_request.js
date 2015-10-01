@@ -1,5 +1,4 @@
-// var API_KEY = "%WEATHER_UNDERGROUND_KEY%";
-var API_KEY = "4eb1779d3afff1cf";
+var API_KEY = "%WEATHER_UNDERGROUND_KEY%";
 
 var locationOptions = {
   enableHighAccuracy: false, 
@@ -19,7 +18,7 @@ function makeRequest(method, url, callback, errCallback) {
 	req.send();
 }
 
-var RequestTypes = {
+var MessageTypes = {
   "PHONE_READY" : 0,
   "WEATHER_REPORT" : 1,
   "FETCH_WEATHER" : 2,
@@ -95,8 +94,7 @@ var Weather = {
     var forecastPrecip = forecastPieces.map(this.extractPop, this);
 
     return {
-      // TODO: MESSAGE_TYPE is needlessly wasting space, converting to an uint8 would be better
-      "MESSAGE_TYPE" : RequestTypes.WEATHER_REPORT,
+      "MESSAGE_TYPE" : ByteConversions.toInt8ByteArray(MessageTypes.WEATHER_REPORT),
       "WEATHER_TEMP" : ByteConversions.toInt16ByteArray(currentWeather.temperature),
       "WEATHER_WIND_DIRECTION" : ByteConversions.toInt16ByteArray(currentWeather.windDirection),
       "WEATHER_WIND_SPEED" : ByteConversions.toInt16ByteArray(currentWeather.windSpeed),
@@ -109,14 +107,28 @@ var Weather = {
   
   retrieveSuccess : function(req) {
     // TODO: Check req status code for error
-    console.log("Request for weather succeeded");
-    var weatherModel = this.apiModelToWatchModel(JSON.parse(req.responseText));
+    console.log("Request for weather succeeded status code is [" + req.status + "]");
+    if(!(req.status >= 200 && req.status < 300)) {
+      console.log("Status code [" + req.status + "] is considered a failure");
+      this.retrieveFailure(req);
+      return;
+    }
+    
+    var responseJson = JSON.parse(req.responseText);
+    if("error" in responseJson.response) {
+      console.log("JSON response contained error [" + responseJson.response.error.description + "] marking request as a failure");
+      this.retrieveFailure(req);
+      return;
+    }
+    
+    var weatherModel = this.apiModelToWatchModel(responseJson);
     console.log("weather model conversion finished");
     sendWeatherModel(weatherModel);
   },
   
   retrieveFailure : function(req) {
     console.log("[" + req + "] request failed.");
+    Pebble.sendAppMessage({"MESSAGE_TYPE" : MessageTypes.WEATHER_FAILED});
   },
   
   retrieve : function(position, onSuccess, onError) {
@@ -132,11 +144,6 @@ var Weather = {
     console.log('Generated url [' + url + ']');
   
     makeRequest("GET", url, this.retrieveSuccess.bind(this), this.retrieveFailure.bind(this));
-  },
-  
-  iconToOffset : function(icon) {
-    // TODO: Convert from text into the appropriate image offset
-    return 0;
   },
   
   toShortWeather : function(longWeather) {
@@ -158,7 +165,7 @@ function locationError(error) {
 function MessageHandler() {
   this.messageFunctions = {};
   
-  this.messageFunctions[RequestTypes.FETCH_WEATHER] = function(message) {
+  this.messageFunctions[MessageTypes.FETCH_WEATHER] = function(message) {
     navigator.geolocation.getCurrentPosition(Weather.retrieve.bind(Weather), locationError, locationOptions);
   };
 }
@@ -167,8 +174,7 @@ MessageHandler.prototype.handleMessage = function(message) {
   var messageType = message.MESSAGE_TYPE;
   console.log("Got message from watch with type [" + message.MESSAGE_TYPE + "]");
     
-  var messageFn = this.messageFunctions[messageType];
-  messageFn(message);
+  this.messageFunctions[messageType](message);
 };
 
 function sendWeatherModel(weatherModel) {
@@ -179,7 +185,7 @@ function sendWeatherModel(weatherModel) {
 Pebble.addEventListener('ready',
   function(e) { 
     console.log('JavaScript app ready and running!');
-    Pebble.sendAppMessage({"MESSAGE_TYPE": RequestTypes.PHONE_READY});
+    Pebble.sendAppMessage({"MESSAGE_TYPE": MessageTypes.PHONE_READY});
   }
 );
 

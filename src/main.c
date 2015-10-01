@@ -33,8 +33,8 @@ struct Parts {
 };
 
 typedef struct {
-  char* time_text;
-  char* date_text;
+  char *time_text;
+  char *date_text;
 } TimeInfo;
   
 const VibePattern DISCONNECT_PATTERN = {
@@ -80,8 +80,30 @@ static void update_time(struct Parts *parts, const struct tm *tick_time) {
   layer_mark_dirty(text_layer_get_layer(parts->date_layer));
 }
 
+static bool send_request() {
+  APP_LOG(APP_LOG_LEVEL_DEBUG, "Sending the Fetch Weather command to the phone");
+  
+  DictionaryIterator *iter;
+  app_message_outbox_begin(&iter);
+  if (iter == NULL) {
+    APP_LOG(APP_LOG_LEVEL_DEBUG, "null iter");
+    return false;
+  }
+
+  Tuplet tuple = TupletInteger(KEY_MESSAGE_TYPE, FETCH_WEATHER);
+  dict_write_tuplet(iter, &tuple);
+  dict_write_end(iter);
+
+  app_message_outbox_send();
+  APP_LOG(APP_LOG_LEVEL_DEBUG, "Finished the send");
+  return true;
+}
+
 static void handle_minute_tick(struct tm *tick_time, TimeUnits units_changed) {
   update_time(parts, tick_time);
+  if(tick_time->tm_min % 30 == 0) {
+    send_request();
+  }
 }
 
 static Weather initial_weather() {
@@ -165,25 +187,6 @@ inline VibePattern get_vibe_pattern(bool connected) {
 static void handle_bluetooth_change(bool connected) {
   bluetooth_layer_set_bluetooth_state(parts->bluetooth_layer, connected);
   vibes_enqueue_custom_pattern(get_vibe_pattern(connected));
-}
-
-static bool send_request() {
-  APP_LOG(APP_LOG_LEVEL_DEBUG, "Sending the Fetch Weather command to the phone");
-  
-  DictionaryIterator *iter;
-  app_message_outbox_begin(&iter);
-  if (iter == NULL) {
-    APP_LOG(APP_LOG_LEVEL_DEBUG, "null iter");
-    return false;
-  }
-
-  Tuplet tuple = TupletInteger(KEY_MESSAGE_TYPE, FETCH_WEATHER);
-  dict_write_tuplet(iter, &tuple);
-  dict_write_end(iter);
-
-  app_message_outbox_send();
-  APP_LOG(APP_LOG_LEVEL_DEBUG, "Finished the send");
-  return true;
 }
 
 static void inbox_received_handler(DictionaryIterator *iterator, void *context) {

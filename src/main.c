@@ -143,9 +143,9 @@ static TextLayer* create_time_layer() {
 }
 
 static TextLayer* create_date_layer() {
-  TextLayer *date_layer = text_layer_create(GRect(0, 42, 144, 18));
+  TextLayer *date_layer = text_layer_create(GRect(0, 40, 144, 18));
   layer_set_clips(text_layer_get_layer(date_layer), false);
-  text_layer_set_font(date_layer, fonts_get_system_font(FONT_KEY_GOTHIC_18));
+  text_layer_set_font(date_layer, fonts_get_system_font(FONT_KEY_GOTHIC_24_BOLD));
   text_layer_set_text_alignment(date_layer, GTextAlignmentCenter);
   text_layer_set_text_color(date_layer, GColorWhite);
   text_layer_set_background_color(date_layer, GColorClear);

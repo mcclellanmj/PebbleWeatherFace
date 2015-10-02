@@ -1,5 +1,7 @@
 var API_KEY = "%WEATHER_UNDERGROUND_KEY%";
 
+var HTTP_REQUEST_TIMEOUT = 30000;
+
 var locationOptions = {
   enableHighAccuracy: false, 
   maximumAge: 60000, 
@@ -9,13 +11,28 @@ var locationOptions = {
 function makeRequest(method, url, callback, errCallback) {
 	var req = new XMLHttpRequest();
   
-	req.open(method, url, true);
-	req.onload = function(e) {
-		if(req.readyState == 4) { callback(req); }
-	};
   req.onerror = errCallback;
+  req.onreadystatechange = function(e) {
+    if(this.readyState == 4 && this.status >= 200 && this.status < 300) {
+      callback(this);
+    } else if(this.readyState == 4) {
+      console.log("Request for weather failed status code is [" + this.status + "]");
+      errCallback(this);
+    }
+  };
   
-	req.send();
+  // If after the timeout request hasn't finished we need to abort it
+  setTimeout(function() {
+    console.log("Checking up on HTTP request");
+    if(this.readyState != 4) {
+      this.abort();
+      this.onerror();
+      console.log("Aborting request since its still not done");
+    }
+  }.bind(req), HTTP_REQUEST_TIMEOUT);
+  
+  req.open(method, url, true);
+  req.send();
 }
 
 var MessageTypes = {
@@ -107,7 +124,6 @@ var Weather = {
   
   retrieveSuccess : function(req) {
     // TODO: Check req status code for error
-    console.log("Request for weather succeeded status code is [" + req.status + "]");
     if(!(req.status >= 200 && req.status < 300)) {
       console.log("Status code [" + req.status + "] is considered a failure");
       this.retrieveFailure(req);
@@ -160,6 +176,7 @@ var Weather = {
 
 function locationError(error) {
   console.log('Error code while fetching location [' + error.code + '].  [' + error.message + ']');
+  Pebble.sendAppMessage({"MESSAGE_TYPE" : MessageTypes.WEATHER_FAILED});
 }
 
 function MessageHandler() {

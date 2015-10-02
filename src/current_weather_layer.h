@@ -1,7 +1,7 @@
 #pragma once
 #include <pebble.h>
 
-enum WeatherStatus {AVAILABLE, ERROR, NOT_REQUESTED, REQUESTING};
+enum WeatherStatus {AVAILABLE, ERROR};
 enum WindDir {NORTH, NORTH_EAST, EAST, SOUTH_EAST, SOUTH, SOUTH_WEST, WEST, NORTH_WEST};
 
 typedef struct {

@@ -4,6 +4,7 @@ typedef struct {
   bool valid;
   uint8_t start_time;
   int16_t temperatures[12];
+  // TODO: chance_of_rain could be a uint8_t
   int16_t chance_of_rain[12];
 } Forecast;
 

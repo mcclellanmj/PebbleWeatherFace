@@ -3,13 +3,29 @@
 #include "util.h"
   
 static void draw_invalid_forecast(ForecastLayer *forecast_layer, GContext *ctx) {
-  // TODO: Draw something about it being invalid
+  Layer *layer = forecast_layer->layer;
+  GRect bounds = layer_get_bounds(layer);
+
+  graphics_context_set_fill_color(ctx, forecast_layer->background_color);
+  graphics_fill_rect(ctx, bounds, 0, GCornerNone);
+
+  graphics_draw_text(ctx,
+                     "X",
+                     fonts_get_system_font(FONT_KEY_BITHAM_42_BOLD),
+                     bounds,
+                     GTextOverflowModeFill,
+                     GTextAlignmentCenter,
+                     NULL);
 }
   
 static void draw_forecast(ForecastLayer *forecast_layer, GContext *ctx) {
   Forecast forecast = forecast_layer->forecast;
   Layer *layer = forecast_layer->layer;
   GRect bounds = layer_get_bounds(layer);
+
+  graphics_context_set_fill_color(ctx, forecast_layer->background_color);
+  graphics_fill_rect(ctx, bounds, 0, GCornerNone);
+
   MinMaxResult temperature_bounds = int16_min_max(forecast.temperatures, 12);
 }
 

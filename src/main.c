@@ -2,6 +2,7 @@
 #include "battery.h"
 #include "bluetooth_layer.h"
 #include "current_weather_layer.h"
+#include "forecast_layer.h"
   
 enum {
   WEATHER_STATUS = 0,
@@ -30,6 +31,7 @@ struct Parts {
   BatteryLayer *battery_layer;
   BluetoothLayer *bluetooth_layer;
   CurrentWeatherLayer *current_weather_layer;
+  ForecastLayer *forecast_layer;
 };
 
 typedef struct {
@@ -107,13 +109,26 @@ static void handle_minute_tick(struct tm *tick_time, TimeUnits units_changed) {
 }
 
 static Weather initial_weather() {
-  Weather* the_weather = malloc(sizeof(Weather));
+  Weather the_weather;
+  the_weather.current_weather.temperature = -85;
+  the_weather.current_weather.wind_speed = 15;
+  the_weather.current_weather.wind_dir = 250;
+  the_weather.current_weather.icon_offset = 0;
 
-  the_weather->current_weather.temperature = -85;
-  the_weather->current_weather.wind_speed = 15;
-  the_weather->current_weather.wind_dir = 250;
-  the_weather->current_weather.icon_offset = 0;
-  return *the_weather;
+  return the_weather;
+}
+
+static Forecast initial_forecast() {
+  Forecast forecast;
+  forecast.valid = false;
+  return forecast;
+}
+
+static ForecastLayer* create_forecast_layer() {
+  ForecastLayer *forecast_layer = forecast_layer_create_layer(GRect(0, 40, 144, 128), initial_forecast());
+  forecast_layer_set_hidden(forecast_layer, false);
+
+  return forecast_layer;
 }
 
 static CurrentWeatherLayer* create_current_weather_layer() {
@@ -226,7 +241,8 @@ static void handle_init() {
     .date_layer = create_date_layer(),
     .battery_layer = create_battery_layer(),
     .bluetooth_layer = create_bluetooth_layer(),
-    .current_weather_layer = create_current_weather_layer()
+    .current_weather_layer = create_current_weather_layer(),
+    .forecast_layer = create_forecast_layer()
   };
   
   window_set_window_handlers(parts->main_window, (WindowHandlers) {

@@ -8,6 +8,8 @@ static void draw_invalid_forecast(ForecastLayer *forecast_layer, GContext *ctx) 
   
 static void draw_forecast(ForecastLayer *forecast_layer, GContext *ctx) {
   Forecast forecast = forecast_layer->forecast;
+  Layer *layer = forecast_layer->layer;
+  GRect bounds = layer_get_bounds(layer);
   MinMaxResult temperature_bounds = int16_min_max(forecast.temperatures, 12);
 }
 

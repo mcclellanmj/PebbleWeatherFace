@@ -119,13 +119,13 @@ static Weather initial_weather() {
 }
 
 static Forecast initial_forecast() {
-  Forecast forecast;
-  forecast.valid = false;
-  return forecast;
+  return (Forecast) {
+     .valid = false
+  };
 }
 
 static ForecastLayer* create_forecast_layer() {
-  ForecastLayer *forecast_layer = forecast_layer_create_layer(GRect(0, 40, 144, 128), initial_forecast());
+  ForecastLayer *forecast_layer = forecast_layer_create_layer(GRect(0, 44, 144, 128), initial_forecast());
   forecast_layer_set_hidden(forecast_layer, false);
 
   return forecast_layer;
@@ -171,12 +171,13 @@ static void window_load(Window *window) {
   window_set_background_color(window, GColorBlack);
   
   Layer *window_layer = window_get_root_layer(parts->main_window);
-  
+
   layer_add_child(window_layer, battery_layer_get_layer(parts->battery_layer));
   layer_add_child(window_layer, bluetooth_layer_get_layer(parts->bluetooth_layer));
-  layer_add_child(window_layer, text_layer_get_layer(parts->date_layer));
   layer_add_child(window_layer, text_layer_get_layer(parts->time_layer));
+  layer_add_child(window_layer, text_layer_get_layer(parts->date_layer));
   layer_add_child(window_layer, current_weather_layer_get_layer(parts->current_weather_layer));
+  layer_add_child(window_layer, forecast_layer_get_layer(parts->forecast_layer));
 }
 
 static void window_unload(Window *window) {
@@ -185,6 +186,7 @@ static void window_unload(Window *window) {
   battery_layer_destroy(parts->battery_layer);
   bluetooth_layer_destroy(parts->bluetooth_layer);
   current_weather_layer_destroy(parts->current_weather_layer);
+  forecast_layer_destroy(parts->forecast_layer);
 }
 
 static void handle_battery_change(BatteryChargeState charge_state) {
@@ -195,7 +197,7 @@ inline VibePattern get_vibe_pattern(bool connected) {
   if(!connected) {
     return DISCONNECT_PATTERN;
   }
-  
+
   return RECONNECT_PATTERN;
 }
 
@@ -237,12 +239,12 @@ static void handle_init() {
   parts = malloc(sizeof(*parts));
   *parts = (struct Parts) {
     .main_window = window_create(),
+    .forecast_layer = create_forecast_layer(),
     .time_layer = create_time_layer(),
     .date_layer = create_date_layer(),
     .battery_layer = create_battery_layer(),
     .bluetooth_layer = create_bluetooth_layer(),
-    .current_weather_layer = create_current_weather_layer(),
-    .forecast_layer = create_forecast_layer()
+    .current_weather_layer = create_current_weather_layer()
   };
   
   window_set_window_handlers(parts->main_window, (WindowHandlers) {
@@ -252,7 +254,7 @@ static void handle_init() {
 
   app_message_register_inbox_received(inbox_received_handler);
   app_message_open(app_message_inbox_size_maximum(), app_message_outbox_size_maximum());
-  
+
   window_stack_push(parts->main_window, true);
 
   tick_timer_service_subscribe(MINUTE_UNIT, handle_minute_tick);

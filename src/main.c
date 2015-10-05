@@ -124,8 +124,17 @@ static Forecast initial_forecast() {
   };
 }
 
+static Forecast test_forecast() {
+  return (Forecast) {
+          .valid = true,
+          .chance_of_rain = {10, 12, 100, 10, 12, 43, 85, 19, 20, 30, 11, 85},
+          .start_time = 12,
+          .temperatures = {60, 62, 65, 64, 62, 68, 70, 75, 72, 68, 67, 67}
+  };
+}
+
 static ForecastLayer* create_forecast_layer() {
-  ForecastLayer *forecast_layer = forecast_layer_create_layer(GRect(0, 44, 144, 128), initial_forecast());
+  ForecastLayer *forecast_layer = forecast_layer_create_layer(GRect(0, 44, 144, 128), test_forecast());
   forecast_layer_set_hidden(forecast_layer, false);
 
   return forecast_layer;

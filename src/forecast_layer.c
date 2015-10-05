@@ -10,6 +10,8 @@ static void draw_invalid_forecast(ForecastLayer *forecast_layer, GContext *ctx) 
   graphics_fill_rect(ctx, bounds, 0, GCornerNone);
 
   graphics_context_set_text_color(ctx, forecast_layer->foreground_color);
+
+  // TODO: Text needs to be moved down about 20 pixels
   graphics_draw_text(ctx,
                      "X",
                      fonts_get_system_font(FONT_KEY_BITHAM_42_BOLD),

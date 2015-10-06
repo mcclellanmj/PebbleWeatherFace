@@ -20,6 +20,16 @@ static void draw_invalid_forecast(ForecastLayer *forecast_layer, GContext *ctx) 
                      GTextAlignmentCenter,
                      NULL);
 }
+
+static void draw_small_text(GContext *ctx, char* text, GRect location) {
+  graphics_draw_text(ctx,
+                     text,
+                     fonts_get_system_font(FONT_KEY_GOTHIC_14),
+                     location,
+                     GTextOverflowModeFill,
+                     GTextAlignmentCenter,
+                     NULL);
+}
   
 static void draw_forecast(ForecastLayer *forecast_layer, GContext *ctx) {
   Forecast forecast = forecast_layer->forecast;
@@ -30,6 +40,24 @@ static void draw_forecast(ForecastLayer *forecast_layer, GContext *ctx) {
   graphics_fill_rect(ctx, bounds, 0, GCornerNone);
 
   MinMaxResult temperature_bounds = int16_min_max(forecast.temperatures, 12);
+  
+  char max_temperature[5];
+  snprintf(max_temperature, 5, "%d", temperature_bounds.max);
+  
+  char min_temperature[5];
+  snprintf(min_temperature, 5, "%d", temperature_bounds.min);
+  
+  graphics_context_set_fill_color(ctx, forecast_layer->foreground_color);
+  
+  GRect high_rect = GRect(132, 2, 12, 18);
+  graphics_fill_rect(ctx, high_rect, 0, GCornerNone);
+  GRect low_rect = GRect(132, 72, 12, 18);
+  graphics_fill_rect(ctx, low_rect, 0, GCornerNone);
+    
+    
+  graphics_context_set_text_color(ctx, forecast_layer->background_color);
+  draw_small_text(ctx, max_temperature, high_rect);
+  draw_small_text(ctx, min_temperature, low_rect);
 }
 
 static void draw_forecast_layer(Layer *layer, GContext *ctx) {

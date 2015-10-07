@@ -30,6 +30,10 @@ static void draw_small_text(GContext *ctx, char* text, GRect location) {
                      GTextAlignmentCenter,
                      NULL);
 }
+
+uint16_t scale_to_range(uint16_t value, uint16_t old_min, uint16_t old_max, uint16_t new_min) {
+  return ( (value - old_min) / (float) (old_max - old_min) ) * (7 - new_min) + new_min;
+}
   
 static void draw_forecast(ForecastLayer *forecast_layer, GContext *ctx) {
   Forecast forecast = forecast_layer->forecast;
@@ -40,29 +44,56 @@ static void draw_forecast(ForecastLayer *forecast_layer, GContext *ctx) {
   graphics_fill_rect(ctx, bounds, 0, GCornerNone);
 
   MinMaxResult temperature_bounds = int16_min_max(forecast.temperatures, 12);
-  
-  char max_temperature[5];
-  snprintf(max_temperature, 5, "%d", temperature_bounds.max);
-  
-  char min_temperature[5];
-  snprintf(min_temperature, 5, "%d", temperature_bounds.min);
-  
+  graphics_context_set_text_color(ctx, forecast_layer->foreground_color);
+
+  // Draw the first time in top left
+  char time[3];
+  snprintf(time, 3, "%d", forecast.start_time);
+  draw_small_text(ctx, time, GRect(0, 0, 20, 20));
+
+  // Draw the vertical lines to help see the temps
+  graphics_context_set_stroke_color(ctx, forecast_layer->foreground_color);
+  uint16_t y = scale_length(bounds.size.h, .70);
+  for(int i = 1; i < 4; i++) {
+    uint16_t x = scale_length(bounds.size.w, i * .25);
+    GPoint top = GPoint(x, 0);
+    GPoint bottom = GPoint(x, y);
+    graphics_draw_line(ctx, top, bottom);
+
+    // Draw the time offset to the right
+    char time[3];
+    snprintf(time, 3, "%d", forecast.start_time + (i * 3));
+    draw_small_text(ctx, time, GRect(x, 0, 20, 20));
+  }
+
   graphics_context_set_fill_color(ctx, forecast_layer->foreground_color);
-  
-  GRect high_rect = GRect(132, 2, 12, 18);
-  graphics_fill_rect(ctx, high_rect, 0, GCornerNone);
-  GRect low_rect = GRect(132, 72, 12, 18);
-  graphics_fill_rect(ctx, low_rect, 0, GCornerNone);
-    
-    
-  graphics_context_set_text_color(ctx, forecast_layer->background_color);
-  draw_small_text(ctx, max_temperature, high_rect);
-  draw_small_text(ctx, min_temperature, low_rect);
+  graphics_fill_rect(ctx, GRect(0, y, bounds.size.w, 2), 0, GCornerNone);
+
+  char high_low[10];
+  snprintf(high_low, 10, "%d/%d", temperature_bounds.max, temperature_bounds.min);
+  graphics_draw_text(ctx,
+                     high_low,
+                     fonts_get_system_font(FONT_KEY_GOTHIC_24_BOLD),
+                     GRect(bounds.size.w - 60, y, 60, 20),
+                     GTextOverflowModeFill,
+                     GTextAlignmentCenter,
+                     NULL);
+
+  // Draw the temperature line
+  uint16_t lX = 0;
+  uint16_t lY = scale_to_range(forecast.temperatures[0], temperature_bounds.min, temperature_bounds.max, y);
+
+  for(int i = 1; i < 12; i++) {
+    uint16_t pX = scale_length(bounds.size.w, i/11.0);
+    uint16_t pY = scale_to_range(forecast.temperatures[i], temperature_bounds.min, temperature_bounds.max, y);
+    graphics_context_set_stroke_color(ctx, forecast_layer->foreground_color);
+    graphics_draw_line(ctx, GPoint(lX, lY), GPoint(pX, pY));
+    lX = pX;
+    lY = pY;
+  }
 }
 
 static void draw_forecast_layer(Layer *layer, GContext *ctx) {
-  APP_LOG(APP_LOG_LEVEL_DEBUG, "Drawing the forecast");
-
   ForecastLayer *forecast_layer = (ForecastLayer*) layer_get_data(layer);
   Forecast forecast = forecast_layer->forecast;
 

@@ -15,7 +15,7 @@ static void draw_invalid_forecast(ForecastLayer *forecast_layer, GContext *ctx) 
   graphics_draw_text(ctx,
                      "X",
                      fonts_get_system_font(FONT_KEY_BITHAM_42_BOLD),
-                     bounds,
+                     GRect(bounds.origin.x, bounds.origin.y + 20, bounds.size.w, bounds.size.h),
                      GTextOverflowModeFill,
                      GTextAlignmentCenter,
                      NULL);
@@ -31,8 +31,36 @@ static void draw_small_text(GContext *ctx, char* text, GRect location) {
                      NULL);
 }
 
-uint16_t scale_to_range(uint16_t value, uint16_t old_min, uint16_t old_max, uint16_t new_min) {
+uint16_t scale_to_range(int16_t value, int16_t old_min, int16_t old_max, int16_t new_min) {
   return ( (value - old_min) / (float) (old_max - old_min) ) * (7 - new_min) + new_min;
+}
+
+void draw_temperature_line(GContext *ctx, const int16_t *temperatures, GRect graph_bounds) {
+  MinMaxResult temperature_bounds = int16_min_max(temperatures, 12);
+  if(temperature_bounds.valid == false) {
+    return;
+  }
+
+  uint16_t lastX = 0;
+  uint16_t lastY = scale_to_range(temperatures[0], temperature_bounds.min, temperature_bounds.max, graph_bounds.size.h);
+
+  for(int i = 1; i < 12; i++) {
+    uint16_t x = scale_length(graph_bounds.size.w, i/11.0);
+    uint16_t y = scale_to_range(temperatures[i], temperature_bounds.min, temperature_bounds.max, graph_bounds.size.h);
+    graphics_draw_line(ctx, GPoint(lastX, lastY), GPoint(x, y));
+    lastX = x;
+    lastY = y;
+  }
+}
+
+void draw_rain_bars(GContext *ctx, const int16_t *rain_chances, GRect graph_bounds) {
+  // Draw the chance of rain bars
+  for(int i = 0; i < 12; i++) {
+    uint16_t x = scale_length(graph_bounds.size.w, i/11.0);
+    uint16_t top = scale_length(graph_bounds.size.h - 7, rain_chances[i] * .01);
+
+    graphics_fill_rect(ctx, GRect(x - 2, graph_bounds.size.h, 5, 0 - top), 0, GCornerNone);
+  }
 }
   
 static void draw_forecast(ForecastLayer *forecast_layer, GContext *ctx) {
@@ -55,13 +83,12 @@ static void draw_forecast(ForecastLayer *forecast_layer, GContext *ctx) {
   graphics_context_set_stroke_color(ctx, forecast_layer->foreground_color);
   uint16_t y = scale_length(bounds.size.h, .70);
   for(int i = 1; i < 4; i++) {
-    uint16_t x = scale_length(bounds.size.w, i * .25);
+    uint16_t x = scale_length(bounds.size.w, i * (3/11.0));
     GPoint top = GPoint(x, 0);
     GPoint bottom = GPoint(x, y);
     graphics_draw_line(ctx, top, bottom);
 
     // Draw the time offset to the right
-    char time[3];
     snprintf(time, 3, "%d", forecast.start_time + (i * 3));
     draw_small_text(ctx, time, GRect(x, 0, 20, 20));
   }
@@ -79,18 +106,9 @@ static void draw_forecast(ForecastLayer *forecast_layer, GContext *ctx) {
                      GTextAlignmentCenter,
                      NULL);
 
-  // Draw the temperature line
-  uint16_t lX = 0;
-  uint16_t lY = scale_to_range(forecast.temperatures[0], temperature_bounds.min, temperature_bounds.max, y);
-
-  for(int i = 1; i < 12; i++) {
-    uint16_t pX = scale_length(bounds.size.w, i/11.0);
-    uint16_t pY = scale_to_range(forecast.temperatures[i], temperature_bounds.min, temperature_bounds.max, y);
-    graphics_context_set_stroke_color(ctx, forecast_layer->foreground_color);
-    graphics_draw_line(ctx, GPoint(lX, lY), GPoint(pX, pY));
-    lX = pX;
-    lY = pY;
-  }
+  GRect graph_bounds = GRect(0, 0, bounds.size.w, y);
+  draw_temperature_line(ctx, forecast.temperatures, graph_bounds);
+  draw_rain_bars(ctx, forecast.chance_of_rain, graph_bounds);
 }
 
 static void draw_forecast_layer(Layer *layer, GContext *ctx) {

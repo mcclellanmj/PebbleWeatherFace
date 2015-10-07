@@ -13,7 +13,7 @@ GPoint gpoint_add(const GPoint *x, const GPoint *y) {
   return GPoint(x->x + y->x, x->y + y->y);
 }
 
-MinMaxResult int16_min_max(int16_t *array, size_t num_elements) {
+MinMaxResult int16_min_max(const int16_t *array, size_t num_elements) {
   if(num_elements <= 0) {
     return (MinMaxResult) { .valid = false };
   }

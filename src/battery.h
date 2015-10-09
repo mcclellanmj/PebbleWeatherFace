@@ -9,9 +9,9 @@ typedef struct {
   GPathInfo *bolt_path;
 } BatteryLayer;
   
-BatteryLayer* battery_layer_create_layer(GRect frame); // Doneish... need to register redraw
-void battery_layer_destroy(BatteryLayer *layer); // Done
-Layer* battery_layer_get_layer(BatteryLayer *layer); // Done
-void battery_layer_set_background_color(BatteryLayer *layer, GColor background_color); // Done
-void battery_layer_set_foreground_color(BatteryLayer *layer, GColor foreground_color); // Done
+BatteryLayer* battery_layer_create_layer(GRect frame);
+void battery_layer_destroy(BatteryLayer *layer);
+Layer* battery_layer_get_layer(BatteryLayer *layer);
+void battery_layer_set_background_color(BatteryLayer *layer, GColor background_color);
+void battery_layer_set_foreground_color(BatteryLayer *layer, GColor foreground_color);
 void battery_layer_set_battery_state(BatteryLayer *battery_layer, BatteryChargeState state);

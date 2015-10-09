@@ -65,7 +65,7 @@ static void draw_arrow(GContext* ctx, GPoint origin, uint8_t direction, LazyLoad
 static void draw_weather_icon(const CurrentWeatherLayer* weather_layer, GContext* ctx) {
   const GRect position = GRect(15, 8, SUB_BITMAP_SIZE, SUB_BITMAP_SIZE);
 
-  GBitmap* bitmap = get_icon_for(weather_layer->weather.current_weather.icon_offset, weather_layer->initialized_state.icons_bitmap);
+  GBitmap* bitmap = get_icon_for(weather_layer->current_weather.icon_offset, weather_layer->initialized_state.icons_bitmap);
 
   graphics_draw_bitmap_in_rect(
           ctx,
@@ -104,25 +104,25 @@ static void draw_weather(Layer* layer, GContext* ctx) {
   CurrentWeatherLayer* weather_layer = layer_get_data(layer);
 
   char temp[5];
-  snprintf(temp, 5, "%d", weather_layer->weather.current_weather.temperature);
+  snprintf(temp, 5, "%d", weather_layer->current_weather.temperature);
   draw_temperature(temp, ctx);
 
   char speed[4];
-  snprintf(speed, 4, "%d", weather_layer->weather.current_weather.wind_speed);
-  uint8_t direction = weather_layer->weather.current_weather.wind_dir;
+  snprintf(speed, 4, "%d", weather_layer->current_weather.wind_speed);
+  uint8_t direction = weather_layer->current_weather.wind_dir;
   draw_wind(speed, direction, ctx, weather_layer->initialized_state);
 
   draw_weather_icon(weather_layer, ctx);
 }
 
-CurrentWeatherLayer* current_weather_layer_create_layer(GRect frame, Weather current_weather) {
+CurrentWeatherLayer* current_weather_layer_create_layer(GRect frame, CurrentWeather current_weather) {
   Layer* layer = layer_create_with_data(frame, sizeof(CurrentWeatherLayer));
   CurrentWeatherLayer* weather_layer = layer_get_data(layer);
 
   weather_layer->layer = layer;
   weather_layer->background_color = GColorClear;
   weather_layer->foreground_color = GColorWhite;
-  weather_layer->weather = current_weather;
+  weather_layer->current_weather = current_weather;
   weather_layer->initialized_state.arrow_path = create_arrow_path();
   weather_layer->initialized_state.icons_bitmap = gbitmap_create_with_resource(RESOURCE_ID_WEATHER_ICONS_60X60);
 
@@ -145,11 +145,7 @@ void current_weather_layer_set_foreground_color(CurrentWeatherLayer* current_wea
 }
 
 void current_weather_layer_set_weather(CurrentWeatherLayer* current_weather_layer,
-                                               Weather current_weather) {
-  current_weather_layer->weather = current_weather;
+                                               CurrentWeather current_weather) {
+  current_weather_layer->current_weather = current_weather;
   layer_mark_dirty(current_weather_layer->layer);
-}
-
-Weather current_weather_layer_get_weather(CurrentWeatherLayer *current_weather_layer) {
-  return current_weather_layer->weather;
 }

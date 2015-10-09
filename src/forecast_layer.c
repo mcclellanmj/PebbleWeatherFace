@@ -42,11 +42,11 @@ void draw_temperature_line(GContext *ctx, const int16_t *temperatures, GRect gra
   }
 
   uint16_t lastX = 0;
-  uint16_t lastY = scale_to_range(temperatures[0], temperature_bounds.min, temperature_bounds.max, graph_bounds.size.h);
+  uint16_t lastY = scale_to_range(temperatures[0], temperature_bounds.min, temperature_bounds.max, graph_bounds.size.h - 7);
 
   for(int i = 1; i < 12; i++) {
     uint16_t x = scale_length(graph_bounds.size.w, i/11.0);
-    uint16_t y = scale_to_range(temperatures[i], temperature_bounds.min, temperature_bounds.max, graph_bounds.size.h);
+    uint16_t y = scale_to_range(temperatures[i], temperature_bounds.min, temperature_bounds.max, graph_bounds.size.h - 7);
     graphics_draw_line(ctx, GPoint(lastX, lastY), GPoint(x, y));
     lastX = x;
     lastY = y;
@@ -89,7 +89,7 @@ static void draw_forecast(ForecastLayer *forecast_layer, GContext *ctx) {
     graphics_draw_line(ctx, top, bottom);
 
     // Draw the time offset to the right
-    snprintf(time, 3, "%d", forecast.start_time + (i * 3));
+    snprintf(time, 3, "%d", (forecast.start_time + (i * 3)) % 24);
     draw_small_text(ctx, time, GRect(x, 0, 20, 20));
   }
 
@@ -155,6 +155,7 @@ void forecast_layer_set_foreground_color(ForecastLayer *forecast_layer, GColor f
 
 void forecast_layer_set_forecast(ForecastLayer *forecast_layer, Forecast forecast) {
   forecast_layer->forecast = forecast;
+  layer_mark_dirty(forecast_layer->layer);
 }
 
 void forecast_layer_set_hidden(ForecastLayer *forecast_layer, bool hidden) {

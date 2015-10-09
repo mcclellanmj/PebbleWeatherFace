@@ -1,6 +1,6 @@
 var API_KEY = "%WEATHER_UNDERGROUND_KEY%";
 
-var HTTP_REQUEST_TIMEOUT = 30000;
+var HTTP_REQUEST_TIMEOUT = 45000;
 
 var locationOptions = {
   enableHighAccuracy: false, 
@@ -201,8 +201,9 @@ function sendWeatherModel(weatherModel) {
 
 Pebble.addEventListener('ready',
   function(e) { 
-    console.log('JavaScript app ready and running!');
+    console.log('JavaScript app ready and running');
     Pebble.sendAppMessage({"MESSAGE_TYPE": MessageTypes.PHONE_READY});
+    console.log('Phone ready message has been sent');
   }
 );
 

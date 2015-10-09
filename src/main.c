@@ -108,14 +108,14 @@ static void handle_minute_tick(struct tm *tick_time, TimeUnits units_changed) {
   }
 }
 
-static Weather initial_weather() {
-  Weather the_weather;
-  the_weather.current_weather.temperature = -85;
-  the_weather.current_weather.wind_speed = 15;
-  the_weather.current_weather.wind_dir = 250;
-  the_weather.current_weather.icon_offset = 0;
+static CurrentWeather initial_weather() {
+  CurrentWeather current_weather;
+  current_weather.temperature = -85;
+  current_weather.wind_speed = 15;
+  current_weather.wind_dir = 250;
+  current_weather.icon_offset = 0;
 
-  return the_weather;
+  return current_weather;
 }
 
 static Forecast initial_forecast() {
@@ -124,19 +124,8 @@ static Forecast initial_forecast() {
   };
 }
 
-static Forecast test_forecast() {
-  return (Forecast) {
-          .valid = true,
-          .chance_of_rain = {10, 12, 100, 10, 12, 43, 85, 19, 20, 30, 11, 85},
-          .start_time = 12,
-          .temperatures = {60, 62, 65, 64, 62, 68, 70, 75, 72, 68, 67, 67}
-  };
-}
-
 static ForecastLayer* create_forecast_layer() {
-  ForecastLayer *forecast_layer = forecast_layer_create_layer(GRect(0, 44, 144, 128), test_forecast());
-  forecast_layer_set_hidden(forecast_layer, false);
-
+  ForecastLayer *forecast_layer = forecast_layer_create_layer(GRect(0, 44, 144, 128), initial_forecast());
   return forecast_layer;
 }
 
@@ -180,7 +169,7 @@ static void window_load(Window *window) {
   window_set_background_color(window, GColorBlack);
   
   Layer *window_layer = window_get_root_layer(parts->main_window);
-
+  
   layer_add_child(window_layer, battery_layer_get_layer(parts->battery_layer));
   layer_add_child(window_layer, bluetooth_layer_get_layer(parts->bluetooth_layer));
   layer_add_child(window_layer, text_layer_get_layer(parts->time_layer));
@@ -210,6 +199,28 @@ inline VibePattern get_vibe_pattern(bool connected) {
   return RECONNECT_PATTERN;
 }
 
+static void show_forecast(void *data) {
+    forecast_layer_set_hidden(parts->forecast_layer, false);
+}
+
+static void hide_forecast(void *data) {
+    forecast_layer_set_hidden(parts->forecast_layer, true);
+}
+
+static void handle_tap(AccelAxisType axis, int32_t direction) {
+  APP_LOG(APP_LOG_LEVEL_DEBUG, "Got a tap");
+  switch (axis) {
+  case ACCEL_AXIS_X:
+    break;
+  case ACCEL_AXIS_Y:
+    break;
+  case ACCEL_AXIS_Z:
+    forecast_layer_set_hidden(parts->forecast_layer, false);
+    app_timer_register(30000, hide_forecast, NULL);
+    break;
+  }
+}
+
 static void handle_bluetooth_change(bool connected) {
   bluetooth_layer_set_bluetooth_state(parts->bluetooth_layer, connected);
   vibes_enqueue_custom_pattern(get_vibe_pattern(connected));
@@ -226,21 +237,27 @@ static void inbox_received_handler(DictionaryIterator *iterator, void *context) 
   }
   
   if(request_type == WEATHER_REPORT) {
-    // FIXME: This is prototype code, clean it up!
-    int16_t weather_temperature = dict_find(iterator, WEATHER_TEMP)->value->int16;
-    int16_t weather_wind_speed = dict_find(iterator, WEATHER_WIND_SPEED)->value->int16;
-    int16_t weather_wind_direction = dict_find(iterator, WEATHER_WIND_DIRECTION)->value->int16;
-    int8_t icon_offset = dict_find(iterator, WEATHER_ICON_OFFSET)->value->uint8;
-    APP_LOG(APP_LOG_LEVEL_DEBUG, "Got Weather with temp [%d], wind speed [%d], wind direction [%d], icon offset [%d]", weather_temperature, weather_wind_speed, weather_wind_direction, icon_offset);
-    Weather weather = current_weather_layer_get_weather(parts->current_weather_layer);
-    CurrentWeather *current_weather = &weather.current_weather;
-    current_weather->temperature = weather_temperature;
-    current_weather->wind_dir = weather_wind_direction;
-    current_weather->wind_speed = weather_wind_speed;
-    current_weather->icon_offset = icon_offset;
-    current_weather_layer_set_weather(parts->current_weather_layer, weather);
+    APP_LOG(APP_LOG_LEVEL_DEBUG, "Got weather from phone");
     
-    // TODO: Parse the response and send the weather over to the draw layer
+    // Update the current weather
+    CurrentWeather current_weather = {
+      .status = AVAILABLE,
+      .temperature = dict_find(iterator, WEATHER_TEMP)->value->int16,
+      .wind_dir = dict_find(iterator, WEATHER_WIND_DIRECTION)->value->int16,
+      .wind_speed = dict_find(iterator, WEATHER_WIND_SPEED)->value->int16,
+      .icon_offset = dict_find(iterator, WEATHER_ICON_OFFSET)->value->uint8,
+    };
+    current_weather_layer_set_weather(parts->current_weather_layer, current_weather);
+    
+    // Update the forecast
+    Forecast forecast = (Forecast) {
+      .valid = true,
+      .start_time = dict_find(iterator, WEATHER_FORECAST_START)->value->uint8,
+    };
+    memcpy(forecast.temperatures, dict_find(iterator, WEATHER_FORECAST_TEMPS)->value->data, 12 * sizeof(int16_t) );
+    memcpy(forecast.chance_of_rain, dict_find(iterator, WEATHER_FORECAST_PRECIP_CHANCE)->value->data, 12 * sizeof(int16_t));
+    
+    forecast_layer_set_forecast(parts->forecast_layer, forecast);
   }
 }
 
@@ -261,14 +278,15 @@ static void handle_init() {
     .unload = window_unload,
   });
 
-  app_message_register_inbox_received(inbox_received_handler);
-  app_message_open(app_message_inbox_size_maximum(), app_message_outbox_size_maximum());
-
   window_stack_push(parts->main_window, true);
 
   tick_timer_service_subscribe(MINUTE_UNIT, handle_minute_tick);
   battery_state_service_subscribe(handle_battery_change);
   bluetooth_connection_service_subscribe(handle_bluetooth_change);
+  accel_tap_service_subscribe(handle_tap);
+  
+  app_message_register_inbox_received(inbox_received_handler);
+  app_message_open(768, 768);
 }
 
 static void handle_deinit() {

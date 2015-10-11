@@ -1,3 +1,4 @@
+// var API_KEY = "4eb1779d3afff1cf";
 var API_KEY = "%WEATHER_UNDERGROUND_KEY%";
 
 var HTTP_REQUEST_TIMEOUT = 45000;

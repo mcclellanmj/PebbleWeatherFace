@@ -1,10 +1,13 @@
 #include <pebble.h>
 #include "current_weather_layer.h"
+#include "bitmap_container.h"
 #include "util.h"
 
 enum WeatherFonts { TEMPERATURE, WIND_SPEED };
 
-static const int8_t SUB_BITMAP_SIZE = 60;
+const uint32_t OFFSET_TO_RESOURCE_MAPPING[25] = { RESOURCE_ID_WEATHER_ICON_0, RESOURCE_ID_WEATHER_ICON_1, RESOURCE_ID_WEATHER_ICON_2, RESOURCE_ID_WEATHER_ICON_3, RESOURCE_ID_WEATHER_ICON_4, RESOURCE_ID_WEATHER_ICON_5, RESOURCE_ID_WEATHER_ICON_6, RESOURCE_ID_WEATHER_ICON_7, RESOURCE_ID_WEATHER_ICON_8, RESOURCE_ID_WEATHER_ICON_9, RESOURCE_ID_WEATHER_ICON_10, RESOURCE_ID_WEATHER_ICON_11, RESOURCE_ID_WEATHER_ICON_12, RESOURCE_ID_WEATHER_ICON_13, RESOURCE_ID_WEATHER_ICON_14, RESOURCE_ID_WEATHER_ICON_15, RESOURCE_ID_WEATHER_ICON_16, RESOURCE_ID_WEATHER_ICON_17, RESOURCE_ID_WEATHER_ICON_18, RESOURCE_ID_WEATHER_ICON_19, RESOURCE_ID_WEATHER_ICON_20, RESOURCE_ID_WEATHER_ICON_21, RESOURCE_ID_WEATHER_ICON_22, RESOURCE_ID_WEATHER_ICON_23, RESOURCE_ID_WEATHER_ICON_24 };
+
+static const int8_t SUB_BITMAP_SIZE = 45;
 
 static inline GFont font_for(const enum WeatherFonts fonts) {
   switch(fonts) {
@@ -16,15 +19,6 @@ static inline GFont font_for(const enum WeatherFonts fonts) {
       // TODO: Needs to create an error message and stop
       return NULL;
   }
-}
-
-static GBitmap* get_icon_for(const uint8_t icon_offset, const GBitmap* parent_bitmap) {
-  uint8_t x = (icon_offset % 5) * SUB_BITMAP_SIZE;
-  uint8_t y = (icon_offset / 5) * SUB_BITMAP_SIZE;
-  
-  APP_LOG(APP_LOG_LEVEL_DEBUG, "Calculated icon offset x is [%d] and y is [%d]", x, y);
-    
-  return gbitmap_create_as_sub_bitmap(parent_bitmap, GRect(x, y, SUB_BITMAP_SIZE, SUB_BITMAP_SIZE));
 }
 
 static struct GPathInfo* create_arrow_path() {
@@ -64,15 +58,12 @@ static void draw_arrow(GContext* ctx, GPoint origin, uint8_t direction, LazyLoad
 
 static void draw_weather_icon(const CurrentWeatherLayer* weather_layer, GContext* ctx) {
   const GRect position = GRect(15, 8, SUB_BITMAP_SIZE, SUB_BITMAP_SIZE);
-
-  GBitmap* bitmap = get_icon_for(weather_layer->current_weather.icon_offset, weather_layer->initialized_state.icons_bitmap);
-
+  bitmap_container_load(weather_layer->initialized_state.bitmap_container, OFFSET_TO_RESOURCE_MAPPING[weather_layer->current_weather.icon_offset]);
+  
   graphics_draw_bitmap_in_rect(
           ctx,
-          bitmap,
+          bitmap_container_get_current(weather_layer->initialized_state.bitmap_container),
           position);
-
-  gbitmap_destroy(bitmap);
 }
 
 static void draw_temperature(char* temperature, GContext* ctx) {
@@ -122,9 +113,10 @@ CurrentWeatherLayer* current_weather_layer_create_layer(GRect frame, CurrentWeat
   weather_layer->layer = layer;
   weather_layer->background_color = GColorClear;
   weather_layer->foreground_color = GColorWhite;
-  weather_layer->current_weather = current_weather;
   weather_layer->initialized_state.arrow_path = create_arrow_path();
-  weather_layer->initialized_state.icons_bitmap = gbitmap_create_with_resource(RESOURCE_ID_WEATHER_ICONS_60X60);
+  weather_layer->initialized_state.bitmap_container = bitmap_container_create();
+  
+  current_weather_layer_set_weather(weather_layer, current_weather);
 
   layer_set_update_proc(layer, draw_weather);
   return weather_layer;
@@ -136,7 +128,7 @@ Layer* current_weather_layer_get_layer(CurrentWeatherLayer *current_weather_laye
 
 void current_weather_layer_destroy(CurrentWeatherLayer* current_weather_layer) {
   free(current_weather_layer->initialized_state.arrow_path);
-  gbitmap_destroy(current_weather_layer->initialized_state.icons_bitmap);
+  bitmap_container_destroy(current_weather_layer->initialized_state.bitmap_container);
   layer_destroy(current_weather_layer->layer);
 }
 
@@ -147,5 +139,6 @@ void current_weather_layer_set_foreground_color(CurrentWeatherLayer* current_wea
 void current_weather_layer_set_weather(CurrentWeatherLayer* current_weather_layer,
                                                CurrentWeather current_weather) {
   current_weather_layer->current_weather = current_weather;
+  
   layer_mark_dirty(current_weather_layer->layer);
 }

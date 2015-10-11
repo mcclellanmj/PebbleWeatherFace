@@ -20,133 +20,133 @@
     "resources": {
         "media": [
             {
-                "file": "images/45x45/3.png",
-                "name": "WEATHER_ICON_3",
-                "type": "png"
-            },
-            {
-                "file": "images/45x45/10.png",
-                "name": "WEATHER_ICON_10",
-                "type": "png"
-            },
-            {
-                "file": "images/45x45/19.png",
-                "name": "WEATHER_ICON_19",
-                "type": "png"
-            },
-            {
-                "file": "images/45x45/24.png",
-                "name": "WEATHER_ICON_24",
-                "type": "png"
-            },
-            {
-                "file": "images/45x45/15.png",
-                "name": "WEATHER_ICON_15",
-                "type": "png"
-            },
-            {
-                "file": "images/45x45/4.png",
-                "name": "WEATHER_ICON_4",
-                "type": "png"
-            },
-            {
-                "file": "images/45x45/6.png",
-                "name": "WEATHER_ICON_6",
-                "type": "png"
-            },
-            {
-                "file": "images/45x45/0.png",
-                "name": "WEATHER_ICON_0",
-                "type": "png"
-            },
-            {
-                "file": "images/45x45/8.png",
-                "name": "WEATHER_ICON_8",
-                "type": "png"
-            },
-            {
-                "file": "images/45x45/5.png",
-                "name": "WEATHER_ICON_5",
-                "type": "png"
-            },
-            {
-                "file": "images/45x45/14.png",
-                "name": "WEATHER_ICON_14",
-                "type": "png"
-            },
-            {
-                "file": "images/45x45/7.png",
-                "name": "WEATHER_ICON_7",
-                "type": "png"
-            },
-            {
-                "file": "images/45x45/23.png",
-                "name": "WEATHER_ICON_23",
-                "type": "png"
-            },
-            {
-                "file": "images/45x45/18.png",
-                "name": "WEATHER_ICON_18",
-                "type": "png"
-            },
-            {
-                "file": "images/45x45/16.png",
-                "name": "WEATHER_ICON_16",
-                "type": "png"
-            },
-            {
-                "file": "images/45x45/22.png",
-                "name": "WEATHER_ICON_22",
-                "type": "png"
-            },
-            {
-                "file": "images/45x45/12.png",
-                "name": "WEATHER_ICON_12",
-                "type": "png"
-            },
-            {
-                "file": "images/45x45/20.png",
-                "name": "WEATHER_ICON_20",
-                "type": "png"
-            },
-            {
-                "file": "images/45x45/17.png",
+                "file": "images/17.png",
                 "name": "WEATHER_ICON_17",
                 "type": "png"
             },
             {
-                "file": "images/45x45/21.png",
-                "name": "WEATHER_ICON_21",
+                "file": "images/8.png",
+                "name": "WEATHER_ICON_8",
                 "type": "png"
             },
             {
-                "file": "images/45x45/11.png",
+                "file": "images/3.png",
+                "name": "WEATHER_ICON_3",
+                "type": "png"
+            },
+            {
+                "file": "images/9.png",
+                "name": "WEATHER_ICON_9",
+                "type": "png"
+            },
+            {
+                "file": "images/11.png",
                 "name": "WEATHER_ICON_11",
                 "type": "png"
             },
             {
-                "file": "images/45x45/1.png",
+                "file": "images/1.png",
                 "name": "WEATHER_ICON_1",
                 "type": "png"
             },
             {
-                "file": "images/45x45/13.png",
-                "name": "WEATHER_ICON_13",
+                "file": "images/20.png",
+                "name": "WEATHER_ICON_20",
                 "type": "png"
             },
             {
-                "file": "images/45x45/2.png",
-                "name": "WEATHER_ICON_2",
+                "file": "images/23.png",
+                "name": "WEATHER_ICON_23",
                 "type": "png"
             },
             {
-                "file": "images/45x45/9.png",
-                "name": "WEATHER_ICON_9",
+                "file": "images/24.png",
+                "name": "WEATHER_ICON_24",
+                "type": "png"
+            },
+            {
+                "file": "images/16.png",
+                "name": "WEATHER_ICON_16",
                 "type": "png"
             },
             {
                 "file": "images/60x60.png",
                 "name": "WEATHER_ICONS_60X60",
+                "type": "png"
+            },
+            {
+                "file": "images/6.png",
+                "name": "WEATHER_ICON_6",
+                "type": "png"
+            },
+            {
+                "file": "images/5.png",
+                "name": "WEATHER_ICON_5",
+                "type": "png"
+            },
+            {
+                "file": "images/7.png",
+                "name": "WEATHER_ICON_7",
+                "type": "png"
+            },
+            {
+                "file": "images/2.png",
+                "name": "WEATHER_ICON_2",
+                "type": "png"
+            },
+            {
+                "file": "images/10.png",
+                "name": "WEATHER_ICON_10",
+                "type": "png"
+            },
+            {
+                "file": "images/12.png",
+                "name": "WEATHER_ICON_12",
+                "type": "png"
+            },
+            {
+                "file": "images/18.png",
+                "name": "WEATHER_ICON_18",
+                "type": "png"
+            },
+            {
+                "file": "images/4.png",
+                "name": "WEATHER_ICON_4",
+                "type": "png"
+            },
+            {
+                "file": "images/22.png",
+                "name": "WEATHER_ICON_22",
+                "type": "png"
+            },
+            {
+                "file": "images/0.png",
+                "name": "WEATHER_ICON_0",
+                "type": "png"
+            },
+            {
+                "file": "images/15.png",
+                "name": "WEATHER_ICON_15",
+                "type": "png"
+            },
+            {
+                "file": "images/14.png",
+                "name": "WEATHER_ICON_14",
+                "type": "png"
+            },
+            {
+                "file": "images/13.png",
+                "name": "WEATHER_ICON_13",
+                "type": "png"
+            },
+            {
+                "file": "images/21.png",
+                "name": "WEATHER_ICON_21",
+                "type": "png"
+            },
+            {
+                "file": "images/19.png",
+                "name": "WEATHER_ICON_19",
                 "type": "png"
             }
         ]

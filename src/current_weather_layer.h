@@ -1,5 +1,6 @@
 #pragma once
 #include <pebble.h>
+#include "bitmap_container.h"
 
 enum WeatherStatus {AVAILABLE, ERROR};
 enum WindDir {NORTH, NORTH_EAST, EAST, SOUTH_EAST, SOUTH, SOUTH_WEST, WEST, NORTH_WEST};
@@ -14,7 +15,7 @@ typedef struct {
 
 typedef struct {
     GPathInfo* arrow_path;
-    GBitmap* icons_bitmap;
+    BitmapContainer* bitmap_container;
 } LazyLoadState;
 
 typedef struct {

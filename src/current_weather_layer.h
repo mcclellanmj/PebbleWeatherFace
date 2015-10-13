@@ -3,18 +3,15 @@
 #include "bitmap_container.h"
 
 enum WeatherStatus {AVAILABLE, ERROR};
-enum WindDir {NORTH, NORTH_EAST, EAST, SOUTH_EAST, SOUTH, SOUTH_WEST, WEST, NORTH_WEST};
 
 typedef struct {
   enum WeatherStatus status;
   int16_t temperature;
-  int16_t wind_dir;
   uint8_t icon_offset;
-  int16_t wind_speed;
+  int16_t uv_index;
 } CurrentWeather;
 
 typedef struct {
-    GPathInfo* arrow_path;
     BitmapContainer* bitmap_container;
 } LazyLoadState;
 

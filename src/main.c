@@ -7,8 +7,6 @@
 enum {
   WEATHER_STATUS = 0,
   WEATHER_TEMP = 1,
-  WEATHER_WIND_DIRECTION = 2,
-  WEATHER_WIND_SPEED = 3,
   WEATHER_ICON_OFFSET = 4,
   WEATHER_PRECIP = 5,
   WEATHER_FORECAST_TEMPS = 6 ,
@@ -110,9 +108,7 @@ static void handle_minute_tick(struct tm *tick_time, TimeUnits units_changed) {
 
 static CurrentWeather initial_weather() {
   CurrentWeather current_weather;
-  current_weather.temperature = -85;
-  current_weather.wind_speed = 15;
-  current_weather.wind_dir = 250;
+  current_weather.temperature = -185;
   current_weather.icon_offset = 0;
 
   return current_weather;
@@ -243,8 +239,6 @@ static void inbox_received_handler(DictionaryIterator *iterator, void *context) 
     CurrentWeather current_weather = {
       .status = AVAILABLE,
       .temperature = dict_find(iterator, WEATHER_TEMP)->value->int16,
-      .wind_dir = dict_find(iterator, WEATHER_WIND_DIRECTION)->value->int16,
-      .wind_speed = dict_find(iterator, WEATHER_WIND_SPEED)->value->int16,
       .icon_offset = dict_find(iterator, WEATHER_ICON_OFFSET)->value->uint8,
     };
     current_weather_layer_set_weather(parts->current_weather_layer, current_weather);

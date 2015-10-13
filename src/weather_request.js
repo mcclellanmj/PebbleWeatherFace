@@ -1,4 +1,3 @@
-// var API_KEY = "4eb1779d3afff1cf";
 var API_KEY = "%WEATHER_UNDERGROUND_KEY%";
 
 var HTTP_REQUEST_TIMEOUT = 45000;
@@ -65,58 +64,47 @@ var Weather = {
   extractTemp : function(longWeather) { return longWeather.temp.english; },
   extractPop : function(longWeather) { return longWeather.pop; },
   
-  iconToOffsetMap : {
-    "1" : 0,
-    "2" : 1,
-    "3" : 3,
-    "4" : 4,
-    "5" : 9,
-    "6" : 9,
-    "7" : 21,
-    "8" : 22,
-    "9" : 15,
-    "10" : 23,
-    "11" : 10,
-    "12" : 23,
-    "13" : 11,
-    "14" : 19,
-    "15" : 20,
-    "16" : 14,
-    "17" : 24,
-    "18" : 17,
-    "19" : 17,
-    "20" : 15,
-    "21" : 15,
-    "22" : 13,
-    "23" : 13,
-    "24" : 16,
+  iconToIconIdMap : {
+    "clear" : 0,
+    "partlycloudy" : 1,
+    "mostlycloudy" : 3,
+    "cloudy" : 4,
+    "hazy" : 9,
+    "fog" : 9,
+    "chancerain" : 23,
+    "rain" : 10,
+    "chancetstorms" : 19,
+    "tstorms" : 20,
+    "flurries" : 14,
+    "chancesleet" : 17,
+    "sleet" : 17,
+    "chancesnow" : 15,
+    "snow" : 15,
     "ERROR" : 24
   },
   
-  getIconOffset : function(forecastCode) {
-    console.log("Finding icon offset for forecast code [" + forecastCode + "]");
-    if(forecastCode in this.iconToOffsetMap) {
-      return this.iconToOffsetMap[forecastCode];
+  getIconId : function(forecastCode) {
+    console.log("Finding icon id for forecast code [" + forecastCode + "]");
+    if(forecastCode in this.iconToIconIdMap) {
+      return this.iconToIconIdMap[forecastCode];
     }
     
-    return this.iconToOffsetMap.ERROR;
+    console.log("Unable to find icon id for [" + forecastCode + "]");
+    return this.iconToIconIdMap.ERROR;
   },
   
   apiModelToWatchModel : function (jsonObject) {
-    var hourly = jsonObject.hourly_forecast;
-    var currentWeather = this.toShortWeather(hourly[0]);
+    var current = jsonObject.current_observation;
 
-    var iconOffset = this.getIconOffset(currentWeather.forecastCode);
-    var forecastPieces = hourly.slice(1, 13);
+    var hourly = jsonObject.hourly_forecast;
+    var forecastPieces = hourly.slice(0, 12);
     var forecastTemps = forecastPieces.map(this.extractTemp, this);
     var forecastPrecip = forecastPieces.map(this.extractPop, this);
 
     return {
       "MESSAGE_TYPE" : ByteConversions.toInt8ByteArray(MessageTypes.WEATHER_REPORT),
-      "WEATHER_TEMP" : ByteConversions.toInt16ByteArray(currentWeather.temperature),
-      "WEATHER_WIND_DIRECTION" : ByteConversions.toInt16ByteArray(currentWeather.windDirection),
-      "WEATHER_WIND_SPEED" : ByteConversions.toInt16ByteArray(currentWeather.windSpeed),
-      "WEATHER_ICON_OFFSET" : ByteConversions.toInt8ByteArray(iconOffset),
+      "WEATHER_TEMP" : ByteConversions.toInt16ByteArray(Math.round(current.temp_f)),
+      "WEATHER_ICON_OFFSET" : ByteConversions.toInt8ByteArray(this.getIconId(current.icon)),
       "WEATHER_FORECAST_START" : ByteConversions.toInt8ByteArray(forecastPieces[0].FCTTIME.hour),
       "WEATHER_FORECAST_PRECIP_CHANCE" : [].concat.apply([], forecastPrecip.map(ByteConversions.toInt16ByteArray)),
       "WEATHER_FORECAST_TEMPS" : [].concat.apply([], forecastTemps.map(ByteConversions.toInt16ByteArray))
@@ -124,7 +112,6 @@ var Weather = {
   },
   
   retrieveSuccess : function(req) {
-    // TODO: Check req status code for error
     if(!(req.status >= 200 && req.status < 300)) {
       console.log("Status code [" + req.status + "] is considered a failure");
       this.retrieveFailure(req);
@@ -150,7 +137,7 @@ var Weather = {
   
   retrieve : function(position, onSuccess, onError) {
     function generateUrl(lat, lon) {
-      return "http://api.wunderground.com/api/" + API_KEY + "/hourly/q/" + lat + "," + lon + ".json";
+      return "http://api.wunderground.com/api/" + API_KEY + "/hourly/conditions/q/" + lat + "," + lon + ".json";
     }
 
     var latitude = position.coords.latitude;
@@ -168,8 +155,6 @@ var Weather = {
       "time" : longWeather.FCTTIME.hour,
       "temperature" : longWeather.temp.english,
       "forecastCode" : longWeather.fctcode,
-      "windSpeed" : longWeather.wspd.english,
-      "windDirection" : longWeather.wdir.degrees,
       "pop" : longWeather.pop
     };
   },

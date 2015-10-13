@@ -26,7 +26,7 @@ static GPathInfo* generate_bolt_path(GRect rect) {
   struct GPathInfo *path_info = malloc(sizeof(GPathInfo));
   *path_info = (GPathInfo) {
     .num_points = size,
-    .points[7] = points
+    .points = points
   };
   
   return path_info;

@@ -203,17 +203,29 @@ static void hide_forecast(void *data) {
     forecast_layer_set_hidden(parts->forecast_layer, true);
 }
 
-static void handle_tap(AccelAxisType axis, int32_t direction) {
-  APP_LOG(APP_LOG_LEVEL_DEBUG, "Got a tap");
+char axisToChar(AccelAxisType axis) {
   switch (axis) {
-  case ACCEL_AXIS_X:
-    break;
-  case ACCEL_AXIS_Y:
-    break;
-  case ACCEL_AXIS_Z:
-    forecast_layer_set_hidden(parts->forecast_layer, false);
-    app_timer_register(30000, hide_forecast, NULL);
-    break;
+    case ACCEL_AXIS_X:
+      return 'X';
+    case ACCEL_AXIS_Y:
+      return 'Y';
+    case ACCEL_AXIS_Z:
+      return 'Z';
+  }
+  
+  return '?';
+}
+
+static void handle_tap(AccelAxisType axis, int32_t direction) {
+  // APP_LOG(APP_LOG_LEVEL_DEBUG, "Got tap on [%c] axis in direction [%d]", axisToChar(axis), (int) direction);
+  switch (axis) {
+    case ACCEL_AXIS_X:
+      break;
+    case ACCEL_AXIS_Y:
+    case ACCEL_AXIS_Z:
+      forecast_layer_set_hidden(parts->forecast_layer, false);
+      app_timer_register(30000, hide_forecast, NULL);
+      break;
   }
 }
 

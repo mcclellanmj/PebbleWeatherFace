@@ -90,8 +90,7 @@ static bool send_request() {
     return false;
   }
 
-  Tuplet tuple = TupletInteger(KEY_MESSAGE_TYPE, FETCH_WEATHER);
-  dict_write_tuplet(iter, &tuple);
+  dict_write_uint8(iter, KEY_MESSAGE_TYPE, FETCH_WEATHER);
   dict_write_end(iter);
 
   app_message_outbox_send();
@@ -292,7 +291,7 @@ static void handle_init() {
   accel_tap_service_subscribe(handle_tap);
   
   app_message_register_inbox_received(inbox_received_handler);
-  app_message_open(768, 768);
+  app_message_open(97, 9);
 }
 
 static void handle_deinit() {

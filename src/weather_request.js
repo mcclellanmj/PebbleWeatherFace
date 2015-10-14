@@ -4,7 +4,7 @@ var HTTP_REQUEST_TIMEOUT = 45000;
 
 var locationOptions = {
   enableHighAccuracy: false, 
-  maximumAge: 60000, 
+  maximumAge: 60000,
   timeout: 15000
 };
 
@@ -42,6 +42,39 @@ var MessageTypes = {
   "WEATHER_FAILED" : 3
 };
 
+var SunPhases = (function() {
+  var isDay = function(sunPhaseEpochs, currentEpoch) {
+    return currentEpoch >= sunPhaseEpochs.riseEpoch && currentEpoch <= sunPhaseEpochs.setEpoch;
+  };
+  
+  var isNight = function(sunPhaseEpochs, currentEpoch) {
+    return !isDay(sunPhaseEpochs);
+  };
+  
+  return {
+    isDay : isDay,
+    isNight : isNight
+  };
+})();
+
+var Time = (function() {
+  var convertToEpoch = function(hour, minute) {
+    var date = new Date();
+    date.setHours(hour);
+    date.setMinutes(minute);
+    return date.getTime();
+  };
+  
+  var currentEpoch = function() {
+    return new Date().getTime();
+  };
+  
+  return {
+    convertToEpoch : convertToEpoch,
+    currentEpoch : currentEpoch
+  };
+})();
+
 var ByteConversions = {
   showBinaryForByte : function(byte) {
     var str = byte.toString(2);
@@ -60,84 +93,112 @@ var ByteConversions = {
   }
 };
 
-var Weather = {
-  extractTemp : function(longWeather) { return longWeather.temp.english; },
-  extractPop : function(longWeather) { return longWeather.pop; },
+var Weather = (function() {
+  var exports = {};
+  var self = this;
   
-  iconToIconIdMap : {
-    "clear" : 0,
-    "partlycloudy" : 1,
-    "mostlycloudy" : 3,
-    "cloudy" : 4,
-    "hazy" : 9,
-    "fog" : 9,
-    "chancerain" : 23,
-    "rain" : 10,
-    "chancetstorms" : 19,
-    "tstorms" : 20,
-    "flurries" : 14,
-    "chancesleet" : 17,
-    "sleet" : 17,
-    "chancesnow" : 15,
-    "snow" : 15,
-    "ERROR" : 24
-  },
+  self.extractTemp = function(longWeather) { return longWeather.temp.english; };
+  self.extractPop = function(longWeather) { return longWeather.pop; };
+  self.extractSunPhases = function(sunPhases) {
+    return {
+      riseEpoch : Time.convertToEpoch(sunPhases.sunrise.hour, sunPhases.sunrise.minute),
+      setEpoch : Time.convertToEpoch(sunPhases.sunset.hour, sunPhases.sunrise.minute)
+    };
+  };
   
-  getIconId : function(forecastCode) {
+  self.alwaysIcon = function(id) {
+    return function(sunPhaseEpochs) {
+      return id;
+    };
+  };
+  
+  self.dayNightIcons = function(dayId, nightId) {
+    return function(sunPhaseEpochs) {
+      if(SunPhases.isNight(sunPhaseEpochs, Time.currentEpoch)) {
+        return nightId;
+      }
+
+      return dayId;
+    };
+  };
+ 
+  self.iconToIconIdMap = {
+    "clear" : self.dayNightIcons(0, 5),
+    "partlycloudy" : self.dayNightIcons(1, 6),
+    "mostlycloudy" : self.dayNightIcons(2, 7),
+    "cloudy" : self.alwaysIcon(4),
+    "hazy" : self.alwaysIcon(9),
+    "fog" : self.alwaysIcon(9),
+    "chancerain" : self.alwaysIcon(23),
+    "rain" : self.alwaysIcon(10),
+    "chancetstorms" : self.alwaysIcon(19),
+    "tstorms" : self.alwaysIcon(20),
+    "flurries" : self.alwaysIcon(14),
+    "chancesleet" : self.alwaysIcon(17),
+    "sleet" : self.alwaysIcon(17),
+    "chancesnow" : self.alwaysIcon(15),
+    "snow" : self.alwaysIcon(15),
+    "ERROR" : self.alwaysIcon(24)
+  };
+  
+  self.getIconId = function(forecastCode, state) {
     console.log("Finding icon id for forecast code [" + forecastCode + "]");
-    if(forecastCode in this.iconToIconIdMap) {
-      return this.iconToIconIdMap[forecastCode];
+    if(forecastCode in self.iconToIconIdMap) {
+      return self.iconToIconIdMap[forecastCode](state);
     }
     
     console.log("Unable to find icon id for [" + forecastCode + "]");
-    return this.iconToIconIdMap.ERROR;
-  },
+    return self.iconToIconIdMap.ERROR(state);
+  };
   
-  apiModelToWatchModel : function (jsonObject) {
+  self.apiModelToWatchModel = function (jsonObject) {
     var current = jsonObject.current_observation;
 
     var hourly = jsonObject.hourly_forecast;
     var forecastPieces = hourly.slice(0, 12);
-    var forecastTemps = forecastPieces.map(this.extractTemp, this);
-    var forecastPrecip = forecastPieces.map(this.extractPop, this);
-
+    var forecastTemps = forecastPieces.map(self.extractTemp, self);
+    var forecastPrecip = forecastPieces.map(self.extractPop, self);
+    
+    var sunPhase = jsonObject.sun_phase;
+    var sunPhaseEpochs = self.extractSunPhases(sunPhase);
+    
     return {
       "MESSAGE_TYPE" : ByteConversions.toInt8ByteArray(MessageTypes.WEATHER_REPORT),
       "WEATHER_TEMP" : ByteConversions.toInt16ByteArray(Math.round(current.temp_f)),
-      "WEATHER_ICON_OFFSET" : ByteConversions.toInt8ByteArray(this.getIconId(current.icon)),
+      "WEATHER_ICON_OFFSET" : ByteConversions.toInt8ByteArray(self.getIconId(current.icon, sunPhaseEpochs)),
       "WEATHER_FORECAST_START" : ByteConversions.toInt8ByteArray(forecastPieces[0].FCTTIME.hour),
       "WEATHER_FORECAST_PRECIP_CHANCE" : [].concat.apply([], forecastPrecip.map(ByteConversions.toInt16ByteArray)),
       "WEATHER_FORECAST_TEMPS" : [].concat.apply([], forecastTemps.map(ByteConversions.toInt16ByteArray))
     };
-  },
+  };
   
-  retrieveSuccess : function(req) {
+  self.retrieveSuccess = function(req) {
     if(!(req.status >= 200 && req.status < 300)) {
       console.log("Status code [" + req.status + "] is considered a failure");
-      this.retrieveFailure(req);
+      self.retrieveFailure(req);
       return;
     }
     
     var responseJson = JSON.parse(req.responseText);
     if("error" in responseJson.response) {
       console.log("JSON response contained error [" + responseJson.response.error.description + "] marking request as a failure");
-      this.retrieveFailure(req);
+      self.retrieveFailure(req);
       return;
     }
     
-    var weatherModel = this.apiModelToWatchModel(responseJson);
+    var weatherModel = self.apiModelToWatchModel(responseJson);
     console.log("weather model conversion finished");
     sendWeatherModel(weatherModel);
-  },
+  };
   
-  retrieveFailure : function(req) {
+  self.retrieveFailure = function(req) {
     console.log("[" + req + "] request failed.");
     Pebble.sendAppMessage({"MESSAGE_TYPE" : MessageTypes.WEATHER_FAILED});
-  },
+  };
   
-  retrieve : function(position, onSuccess, onError) {
+  exports.retrieve = function(position, onSuccess, onError) {
     function generateUrl(lat, lon) {
-      return "http://api.wunderground.com/api/" + API_KEY + "/hourly/conditions/q/" + lat + "," + lon + ".json";
+      return "http://api.wunderground.com/api/" + API_KEY + "/hourly/conditions/astronomy/q/" + lat + "," + lon + ".json";
     }
 
     var latitude = position.coords.latitude;
@@ -147,18 +208,11 @@ var Weather = {
     var url = generateUrl(latitude, longitude);
     console.log('Generated url [' + url + ']');
   
-    makeRequest("GET", url, this.retrieveSuccess.bind(this), this.retrieveFailure.bind(this));
-  },
+    makeRequest("GET", url, self.retrieveSuccess.bind(self), self.retrieveFailure.bind(self));
+  };
   
-  toShortWeather : function(longWeather) {
-    return {
-      "time" : longWeather.FCTTIME.hour,
-      "temperature" : longWeather.temp.english,
-      "forecastCode" : longWeather.fctcode,
-      "pop" : longWeather.pop
-    };
-  },
-};
+  return exports;
+})();
 
 function locationError(error) {
   console.log('Error code while fetching location [' + error.code + '].  [' + error.message + ']');

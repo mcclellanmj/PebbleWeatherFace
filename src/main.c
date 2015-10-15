@@ -260,7 +260,7 @@ static void inbox_received_handler(DictionaryIterator *iterator, void *context) 
       .start_time = dict_find(iterator, WEATHER_FORECAST_START)->value->uint8,
     };
     memcpy(forecast.temperatures, dict_find(iterator, WEATHER_FORECAST_TEMPS)->value->data, 12 * sizeof(int16_t) );
-    memcpy(forecast.chance_of_rain, dict_find(iterator, WEATHER_FORECAST_PRECIP_CHANCE)->value->data, 12 * sizeof(int16_t));
+    memcpy(forecast.chance_of_rain, dict_find(iterator, WEATHER_FORECAST_PRECIP_CHANCE)->value->data, 12 * sizeof(uint8_t));
     
     forecast_layer_set_forecast(parts->forecast_layer, forecast);
   }
@@ -291,7 +291,7 @@ static void handle_init() {
   accel_tap_service_subscribe(handle_tap);
   
   app_message_register_inbox_received(inbox_received_handler);
-  app_message_open(97, 9);
+  app_message_open(85, 9);
 }
 
 static void handle_deinit() {

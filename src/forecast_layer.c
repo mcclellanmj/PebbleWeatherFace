@@ -53,7 +53,7 @@ void draw_temperature_line(GContext *ctx, const int16_t *temperatures, GRect gra
   }
 }
 
-void draw_rain_bars(GContext *ctx, const int16_t *rain_chances, GRect graph_bounds) {
+void draw_rain_bars(GContext *ctx, const uint8_t *rain_chances, GRect graph_bounds) {
   // Draw the chance of rain bars
   for(int i = 0; i < 12; i++) {
     uint16_t x = scale_length(graph_bounds.size.w, i/11.0);

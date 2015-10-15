@@ -7,7 +7,7 @@ enum WeatherFonts { TEMPERATURE };
 
 const uint32_t OFFSET_TO_RESOURCE_MAPPING[25] = { RESOURCE_ID_WEATHER_ICON_0, RESOURCE_ID_WEATHER_ICON_1, RESOURCE_ID_WEATHER_ICON_2, RESOURCE_ID_WEATHER_ICON_3, RESOURCE_ID_WEATHER_ICON_4, RESOURCE_ID_WEATHER_ICON_5, RESOURCE_ID_WEATHER_ICON_6, RESOURCE_ID_WEATHER_ICON_7, RESOURCE_ID_WEATHER_ICON_8, RESOURCE_ID_WEATHER_ICON_9, RESOURCE_ID_WEATHER_ICON_10, RESOURCE_ID_WEATHER_ICON_11, RESOURCE_ID_WEATHER_ICON_12, RESOURCE_ID_WEATHER_ICON_13, RESOURCE_ID_WEATHER_ICON_14, RESOURCE_ID_WEATHER_ICON_15, RESOURCE_ID_WEATHER_ICON_16, RESOURCE_ID_WEATHER_ICON_17, RESOURCE_ID_WEATHER_ICON_18, RESOURCE_ID_WEATHER_ICON_19, RESOURCE_ID_WEATHER_ICON_20, RESOURCE_ID_WEATHER_ICON_21, RESOURCE_ID_WEATHER_ICON_22, RESOURCE_ID_WEATHER_ICON_23, RESOURCE_ID_WEATHER_ICON_24 };
 
-static const int8_t SUB_BITMAP_SIZE = 45;
+static const int8_t BITMAP_SIZE = 45;
 
 static inline GFont font_for(const enum WeatherFonts fonts) {
   switch(fonts) {
@@ -20,7 +20,7 @@ static inline GFont font_for(const enum WeatherFonts fonts) {
 }
 
 static void draw_weather_icon(const CurrentWeatherLayer* weather_layer, GContext* ctx) {
-  const GRect position = GRect(8, 8, SUB_BITMAP_SIZE, SUB_BITMAP_SIZE);
+  const GRect position = GRect(8, 8, BITMAP_SIZE, BITMAP_SIZE);
   bitmap_container_load(weather_layer->initialized_state.bitmap_container, OFFSET_TO_RESOURCE_MAPPING[weather_layer->current_weather.icon_offset]);
   
   graphics_draw_bitmap_in_rect(

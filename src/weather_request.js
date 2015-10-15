@@ -44,11 +44,12 @@ var MessageTypes = {
 
 var SunPhases = (function() {
   var isDay = function(sunPhaseEpochs, currentEpoch) {
+    console.log("Is day calculation: riseEpoch [" + sunPhaseEpochs.riseEpoch + "]; currentEpoch [" + currentEpoch + "]; setEpoch [" + sunPhaseEpochs.setEpoch + "]");
     return currentEpoch >= sunPhaseEpochs.riseEpoch && currentEpoch <= sunPhaseEpochs.setEpoch;
   };
   
   var isNight = function(sunPhaseEpochs, currentEpoch) {
-    return !isDay(sunPhaseEpochs);
+    return !isDay(sunPhaseEpochs, currentEpoch);
   };
   
   return {
@@ -65,13 +66,13 @@ var Time = (function() {
     return date.getTime();
   };
   
-  var currentEpoch = function() {
+  var getCurrentEpoch = function() {
     return new Date().getTime();
   };
   
   return {
     convertToEpoch : convertToEpoch,
-    currentEpoch : currentEpoch
+    getCurrentEpoch : getCurrentEpoch
   };
 })();
 
@@ -94,7 +95,6 @@ var ByteConversions = {
 };
 
 var Weather = (function() {
-  var exports = {};
   var self = this;
   
   self.extractTemp = function(longWeather) { return longWeather.temp.english; };
@@ -114,7 +114,7 @@ var Weather = (function() {
   
   self.dayNightIcons = function(dayId, nightId) {
     return function(sunPhaseEpochs) {
-      if(SunPhases.isNight(sunPhaseEpochs, Time.currentEpoch)) {
+      if(SunPhases.isNight(sunPhaseEpochs, Time.getCurrentEpoch())) {
         return nightId;
       }
 
@@ -167,7 +167,7 @@ var Weather = (function() {
       "WEATHER_TEMP" : ByteConversions.toInt16ByteArray(Math.round(current.temp_f)),
       "WEATHER_ICON_OFFSET" : ByteConversions.toInt8ByteArray(self.getIconId(current.icon, sunPhaseEpochs)),
       "WEATHER_FORECAST_START" : ByteConversions.toInt8ByteArray(forecastPieces[0].FCTTIME.hour),
-      "WEATHER_FORECAST_PRECIP_CHANCE" : [].concat.apply([], forecastPrecip.map(ByteConversions.toInt16ByteArray)),
+      "WEATHER_FORECAST_PRECIP_CHANCE" : [].concat.apply([], forecastPrecip.map(ByteConversions.toInt8ByteArray)),
       "WEATHER_FORECAST_TEMPS" : [].concat.apply([], forecastTemps.map(ByteConversions.toInt16ByteArray))
     };
   };
@@ -196,7 +196,7 @@ var Weather = (function() {
     Pebble.sendAppMessage({"MESSAGE_TYPE" : MessageTypes.WEATHER_FAILED});
   };
   
-  exports.retrieve = function(position, onSuccess, onError) {
+  self.retrieve = function(position, onSuccess, onError) {
     function generateUrl(lat, lon) {
       return "http://api.wunderground.com/api/" + API_KEY + "/hourly/conditions/astronomy/q/" + lat + "," + lon + ".json";
     }
@@ -211,7 +211,9 @@ var Weather = (function() {
     makeRequest("GET", url, self.retrieveSuccess.bind(self), self.retrieveFailure.bind(self));
   };
   
-  return exports;
+  return {
+    retrieve : self.retrieve
+  };
 })();
 
 function locationError(error) {
@@ -223,7 +225,7 @@ function MessageHandler() {
   this.messageFunctions = {};
   
   this.messageFunctions[MessageTypes.FETCH_WEATHER] = function(message) {
-    navigator.geolocation.getCurrentPosition(Weather.retrieve.bind(Weather), locationError, locationOptions);
+    navigator.geolocation.getCurrentPosition(Weather.retrieve, locationError, locationOptions);
   };
 }
 

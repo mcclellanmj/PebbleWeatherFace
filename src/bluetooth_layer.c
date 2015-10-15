@@ -20,7 +20,7 @@ static GPath* generate_bluetooth_path(const GRect* rect) {
   uint16_t half_height = scale_length(height, 0.50f);
   
   uint32_t size = 6;
-  GPoint* points = malloc(sizeof(GPoint) * size);
+  GPoint *points = malloc(sizeof(GPoint) * size);
   points[0] = (GPoint) {one_third_width, height};
   points[1] = (GPoint) {two_thirds_width, 0};
   points[2] = (GPoint) {width, half_height};

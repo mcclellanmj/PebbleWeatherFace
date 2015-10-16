@@ -1,6 +1,7 @@
 #include <pebble.h>
 #include "forecast_layer.h"
 #include "util.h"
+#include "drawing.h"
   
 static void draw_invalid_forecast(ForecastLayer *forecast_layer, GContext *ctx) {
   Layer *layer = forecast_layer->layer;
@@ -50,6 +51,15 @@ void draw_temperature_line(GContext *ctx, const int16_t *temperatures, GRect gra
     graphics_draw_line(ctx, GPoint(lastX, lastY), GPoint(x, y));
     lastX = x;
     lastY = y;
+  }
+}
+
+void draw_dashed_lines(GContext *ctx, GRect graph_bounds) {
+  uint16_t lower_point = graph_bounds.origin.y + graph_bounds.size.h;
+  uint16_t twenty_percent = scale_length(graph_bounds.size.h - 7, .2);
+  
+  for(uint8_t i = 1; i < 5; i++) {
+    graphics_draw_dotted_line(ctx, graph_bounds.origin.x, graph_bounds.size.w, lower_point - (twenty_percent * i), 2, 3);
   }
 }
 
@@ -109,6 +119,7 @@ static void draw_forecast(ForecastLayer *forecast_layer, GContext *ctx) {
   GRect graph_bounds = GRect(0, 0, bounds.size.w, y);
   draw_temperature_line(ctx, forecast.temperatures, graph_bounds);
   draw_rain_bars(ctx, forecast.chance_of_rain, graph_bounds);
+  draw_dashed_lines(ctx, graph_bounds);
 }
 
 static void draw_forecast_layer(Layer *layer, GContext *ctx) {

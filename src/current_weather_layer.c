@@ -9,55 +9,14 @@ const uint32_t OFFSET_TO_RESOURCE_MAPPING[25] = { RESOURCE_ID_WEATHER_ICON_0, RE
 
 static const int8_t BITMAP_SIZE = 45;
 
-static inline GFont font_for(const enum WeatherFonts fonts) {
-  switch(fonts) {
-    case TEMPERATURE:
-      return fonts_get_system_font(FONT_KEY_GOTHIC_24_BOLD);
-    default:
-      // TODO: Needs to create an error message and stop
-      return NULL;
-  }
-}
-
-static void draw_weather_icon(const CurrentWeatherLayer* weather_layer, GContext* ctx) {
-  const GRect position = GRect(8, 8, BITMAP_SIZE, BITMAP_SIZE);
-  bitmap_container_load(weather_layer->initialized_state.bitmap_container, OFFSET_TO_RESOURCE_MAPPING[weather_layer->current_weather.icon_offset]);
-  
-  graphics_draw_bitmap_in_rect(
-          ctx,
-          bitmap_container_get_current(weather_layer->initialized_state.bitmap_container),
-          position);
-}
-
-static void draw_temperature(char* temperature, GContext* ctx) {
-  graphics_draw_text( ctx
-                    , temperature
-                    , font_for(TEMPERATURE)
-                    , GRect(8, 50, 45, 35)
-                    , GTextOverflowModeFill
-                    , GTextAlignmentCenter
-                    , NULL);
-
-}
-
-// TODO: These layers should be split into sub layers to prevent too much work
-static void draw_weather(Layer* layer, GContext* ctx) {
-  APP_LOG(APP_LOG_LEVEL_DEBUG, "Drawing the weather");
-  CurrentWeatherLayer* weather_layer = layer_get_data(layer);
-
-  char temperature[7];
-  snprintf(temperature, 7, "%d\u00B0", weather_layer->current_weather.temperature);
-  draw_temperature(temperature, ctx);
-
-  draw_weather_icon(weather_layer, ctx);
-}
-
 CurrentWeatherLayer* current_weather_layer_create_layer(GRect frame, CurrentWeather current_weather) {
   Layer* layer = layer_create_with_data(frame, sizeof(CurrentWeatherLayer));
   CurrentWeatherLayer* weather_layer = layer_get_data(layer);
 
   *weather_layer = (CurrentWeatherLayer) {
     .layer = layer,
+    .icon_layer = bitmap_layer_create(GRect(8, 8, BITMAP_SIZE, BITMAP_SIZE)),
+    .temperature_layer = text_layer_create(GRect(8, 50, 45, 35)),
     .background_color = GColorClear,
     .foreground_color = GColorWhite,
     .initialized_state = (LazyLoadState) {
@@ -65,9 +24,16 @@ CurrentWeatherLayer* current_weather_layer_create_layer(GRect frame, CurrentWeat
     }
   };
   
+  text_layer_set_text_color(weather_layer->temperature_layer, GColorWhite);
+  text_layer_set_background_color(weather_layer->temperature_layer, GColorBlack);
+  text_layer_set_font(weather_layer->temperature_layer, fonts_get_system_font(FONT_KEY_GOTHIC_24_BOLD));
+  text_layer_set_text_alignment(weather_layer->temperature_layer, GTextAlignmentCenter);
+  
+  layer_add_child(layer, text_layer_get_layer(weather_layer->temperature_layer));
+  layer_add_child(layer, bitmap_layer_get_layer(weather_layer->icon_layer));
+  
   current_weather_layer_set_weather(weather_layer, current_weather);
 
-  layer_set_update_proc(layer, draw_weather);
   return weather_layer;
 }
 
@@ -77,6 +43,9 @@ Layer* current_weather_layer_get_layer(CurrentWeatherLayer *current_weather_laye
 
 void current_weather_layer_destroy(CurrentWeatherLayer* current_weather_layer) {
   bitmap_container_destroy(current_weather_layer->initialized_state.bitmap_container);
+  bitmap_layer_destroy(current_weather_layer->icon_layer);
+  text_layer_destroy(current_weather_layer->temperature_layer);
+  
   layer_destroy(current_weather_layer->layer);
 }
 
@@ -86,7 +55,15 @@ void current_weather_layer_set_foreground_color(CurrentWeatherLayer* current_wea
 
 void current_weather_layer_set_weather(CurrentWeatherLayer* current_weather_layer,
                                                CurrentWeather current_weather) {
-  current_weather_layer->current_weather = current_weather;
+  // Setup the bitmap layer
+  bitmap_container_load(current_weather_layer->initialized_state.bitmap_container, OFFSET_TO_RESOURCE_MAPPING[current_weather.icon_offset]);
+  bitmap_layer_set_bitmap(current_weather_layer->icon_layer, bitmap_container_get_current(current_weather_layer->initialized_state.bitmap_container));
+  layer_mark_dirty(bitmap_layer_get_layer(current_weather_layer->icon_layer));
   
-  layer_mark_dirty(current_weather_layer->layer);
+  // Setup the temperature layer
+  // Has to be static because managing it manually is more work than this little hack
+  static char temperature_buffer[7];
+  snprintf(temperature_buffer, 7, "%d\u00B0", current_weather.temperature);
+  text_layer_set_text(current_weather_layer->temperature_layer, temperature_buffer);
+  layer_mark_dirty(text_layer_get_layer(current_weather_layer->temperature_layer));
 }

@@ -16,8 +16,9 @@ typedef struct {
 } LazyLoadState;
 
 typedef struct {
-  Layer* layer;
-  CurrentWeather current_weather;
+  Layer *layer;
+  BitmapLayer *icon_layer;
+  TextLayer *temperature_layer;
   GColor foreground_color;
   GColor background_color;
   LazyLoadState initialized_state;

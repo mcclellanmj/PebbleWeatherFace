@@ -76,23 +76,39 @@ var Time = (function() {
   };
 })();
 
-var ByteConversions = {
-  showBinaryForByte : function(byte) {
+var ByteConversions = (function() {
+  var showBinaryForByte = function(byte) {
     var str = byte.toString(2);
     return ('00000000' + str).substring(str.length);
-  },
+  };
   
-  toInt8ByteArray : function(integer) {
+  var toInt8ByteArray = function(integer) {
     return [integer & 0x000000FF];
-  },
+  };
   
-  toInt16ByteArray : function(integer) {
+  var toInt16ByteArray = function(integer) {
     return [
       (integer & 0x000000FF),
       (integer & 0x0000FF00) >> 8
     ];
-  }
-};
+  };
+  
+  var toInt32ByteArray = function(integer) {
+    return [
+      (integer & 0x000000FF),
+      (integer & 0x0000FF00) >> 8,
+      (integer & 0x00FF0000) >> 16,
+      (integer & 0xFF000000) >> 24
+    ];
+  };
+  
+  return {
+    showBinaryForByte : showBinaryForByte,
+    toInt8ByteArray : toInt8ByteArray,
+    toInt16ByteArray : toInt16ByteArray,
+    toInt32ByteArray : toInt32ByteArray,
+  };
+})();
 
 var Weather = (function() {
   var self = this;
@@ -168,7 +184,9 @@ var Weather = (function() {
       "WEATHER_ICON_OFFSET" : ByteConversions.toInt8ByteArray(self.getIconId(current.icon, sunPhaseEpochs)),
       "WEATHER_FORECAST_START" : ByteConversions.toInt8ByteArray(forecastPieces[0].FCTTIME.hour),
       "WEATHER_FORECAST_PRECIP_CHANCE" : [].concat.apply([], forecastPrecip.map(ByteConversions.toInt8ByteArray)),
-      "WEATHER_FORECAST_TEMPS" : [].concat.apply([], forecastTemps.map(ByteConversions.toInt16ByteArray))
+      "WEATHER_FORECAST_TEMPS" : [].concat.apply([], forecastTemps.map(ByteConversions.toInt16ByteArray)),
+      "SUNRISE_TIME" : ByteConversions.toInt32ByteArray(sunPhaseEpochs.riseEpoch),
+      "SUNSET_TIME" : ByteConversions.toInt32ByteArray(sunPhaseEpochs.setEpoch)
     };
   };
   

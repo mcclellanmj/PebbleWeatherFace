@@ -1,15 +1,15 @@
 {
     "appKeys": {
         "MESSAGE_TYPE": 8,
+        "SUNRISE_TIME": 2,
+        "SUNSET_TIME": 3,
         "WEATHER_FORECAST_PRECIP_CHANCE": 7,
         "WEATHER_FORECAST_START": 9,
         "WEATHER_FORECAST_TEMPS": 6,
         "WEATHER_ICON_OFFSET": 4,
         "WEATHER_PRECIP": 5,
         "WEATHER_STATUS": 0,
-        "WEATHER_TEMP": 1,
-        "WEATHER_WIND_DIRECTION": 2,
-        "WEATHER_WIND_SPEED": 3
+        "WEATHER_TEMP": 1
     },
     "capabilities": [
         "location"
@@ -146,12 +146,10 @@
             }
         ]
     },
-    "sdkVersion": "3",
+    "sdkVersion": "2",
     "shortName": "hourly-weather",
-    "targetPlatforms": [
-        "aplite"
-    ],
     "uuid": "01a622b8-1ebb-4426-89e6-e5fec312c767",
+    "versionCode": 1,
     "versionLabel": "0.4",
     "watchapp": {
         "watchface": true

@@ -7,6 +7,8 @@
 enum {
   WEATHER_STATUS = 0,
   WEATHER_TEMP = 1,
+  SUNRISE_TIME = 2,
+  SUNSET_TIME = 3,
   WEATHER_ICON_OFFSET = 4,
   WEATHER_PRECIP = 5,
   WEATHER_FORECAST_TEMPS = 6 ,
@@ -291,7 +293,7 @@ static void handle_init() {
   accel_tap_service_subscribe(handle_tap);
   
   app_message_register_inbox_received(inbox_received_handler);
-  app_message_open(85, 9);
+  app_message_open(107, 9);
 }
 
 static void handle_deinit() {

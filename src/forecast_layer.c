@@ -59,7 +59,7 @@ void draw_dashed_lines(GContext *ctx, GRect graph_bounds) {
   uint16_t twenty_percent = scale_length(graph_bounds.size.h - 7, .2);
   
   for(uint8_t i = 1; i < 5; i++) {
-    graphics_draw_dotted_line(ctx, graph_bounds.origin.x, graph_bounds.size.w, lower_point - (twenty_percent * i), 2, 3);
+    graphics_draw_horizontal_dotted_line(ctx, graph_bounds.origin.x, graph_bounds.size.w, lower_point - (twenty_percent * i), 2, 3);
   }
 }
 

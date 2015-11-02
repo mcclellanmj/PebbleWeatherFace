@@ -3,7 +3,7 @@
 #include "util.h"
   
 static void draw_bluetooth(Layer *layer, GContext *ctx) {
-  BluetoothLayer *bluetooth_layer = layer_get_data(layer);
+  BluetoothLayer *bluetooth_layer = (BluetoothLayer *) layer_get_data(layer);
   
   if(bluetooth_layer->connected) {
     graphics_context_set_stroke_color(ctx, bluetooth_layer->foreground_color);
@@ -20,7 +20,7 @@ static GPath* generate_bluetooth_path(const GRect* rect) {
   uint16_t half_height = scale_length(height, 0.50f);
   
   uint32_t size = 6;
-  GPoint *points = malloc(sizeof(GPoint) * size);
+  GPoint *points = (GPoint *) malloc(sizeof(GPoint) * size);
   points[0] = (GPoint) {one_third_width, height};
   points[1] = (GPoint) {two_thirds_width, 0};
   points[2] = (GPoint) {width, half_height};

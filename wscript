@@ -6,7 +6,6 @@
 #
 
 import os.path
-import compile_js
 
 top = '.'
 out = 'build'
@@ -39,5 +38,4 @@ def build(ctx):
             binaries.append({'platform': p, 'app_elf': app_elf})
 
     ctx.set_group('bundle')
-    compile_js.process_javascript()
-    ctx.pbl_bundle(binaries=binaries, js=ctx.path.ant_glob('build/generated/js/**/*.js'))
+    ctx.pbl_bundle(binaries=binaries, js=ctx.path.ant_glob('src/js/**/*.js'))

@@ -11,7 +11,7 @@ static const int8_t BITMAP_SIZE = 45;
 
 CurrentWeatherLayer* current_weather_layer_create_layer(GRect frame, CurrentWeather current_weather) {
   Layer* layer = layer_create_with_data(frame, sizeof(CurrentWeatherLayer));
-  CurrentWeatherLayer* weather_layer = layer_get_data(layer);
+  CurrentWeatherLayer* weather_layer = (CurrentWeatherLayer *) layer_get_data(layer);
 
   *weather_layer = (CurrentWeatherLayer) {
     .layer = layer,

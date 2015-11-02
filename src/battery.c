@@ -13,7 +13,7 @@ static GPathInfo* generate_bolt_path(GRect rect) {
   uint16_t right_bolt = scale_length(height, 0.42f);
   
   uint8_t size = 7;
-  GPoint *points = malloc(sizeof(GPoint) * size);
+  GPoint *points = (GPoint *) malloc(sizeof(GPoint) * size);
   
   points[6] = (GPoint) {4,0};
   points[5] = (GPoint) {0, left_bolt};
@@ -23,7 +23,7 @@ static GPathInfo* generate_bolt_path(GRect rect) {
   points[1] = (GPoint) {4, right_bolt};
   points[0] = (GPoint) {4, 0};
   
-  struct GPathInfo *path_info = malloc(sizeof(GPathInfo));
+  struct GPathInfo *path_info = (struct GPathInfo *) malloc(sizeof(GPathInfo));
   *path_info = (GPathInfo) {
     .num_points = size,
     .points = points

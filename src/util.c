@@ -1,5 +1,14 @@
 #include "util.h"
 
+char* copy_string(char* source, size_t max) {
+  size_t string_length = strlen(source) + 1;
+  size_t largest = string_length > max + 1 ? max + 1 : string_length;
+
+  char* destination = (char *) malloc(sizeof(char) * largest);
+  strncpy(destination, source, largest - 1);
+  return destination;
+}
+
 uint16_t scale_length(uint16_t max_size, float percentage) {
   return ((float) max_size) * percentage;
 }

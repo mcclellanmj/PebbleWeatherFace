@@ -7,6 +7,7 @@ typedef struct {
   int16_t max;
 } MinMaxResult;
 
+char* copy_string(char* source, size_t max);
 MinMaxResult int16_min_max(const int16_t *array, size_t num_elements);
 uint16_t scale_length(uint16_t max_size, float percentage);
 uint16_t scale_length_using_int(uint16_t max_size, uint8_t percentage);

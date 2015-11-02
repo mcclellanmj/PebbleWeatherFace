@@ -2,7 +2,7 @@
 #include "bitmap_container.h"
   
 BitmapContainer* bitmap_container_create() {
-  BitmapContainer *container = malloc(sizeof(BitmapContainer));
+  BitmapContainer *container = (BitmapContainer *) malloc(sizeof(BitmapContainer));
   container->current_bitmap = NULL;
   return container;
 }

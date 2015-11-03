@@ -1,6 +1,6 @@
 #include "util.h"
 
-char* copy_string(char* source, size_t max) {
+char* copy_string(const char* source, size_t max) {
   size_t string_length = strlen(source) + 1;
   size_t largest = string_length > max + 1 ? max + 1 : string_length;
 

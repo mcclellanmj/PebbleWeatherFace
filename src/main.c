@@ -3,6 +3,7 @@
 #include "bluetooth_layer.h"
 #include "current_weather_layer.h"
 #include "forecast_layer.h"
+#include "copying_text_layer.h"
   
 enum {
   WEATHER_STATUS = 0,
@@ -26,8 +27,8 @@ enum {
 
 struct Parts {
   Window *main_window;
-  TextLayer *time_layer;
-  TextLayer *date_layer;
+  CopyingTextLayer *time_layer;
+  CopyingTextLayer *date_layer;
   BatteryLayer *battery_layer;
   BluetoothLayer *bluetooth_layer;
   CurrentWeatherLayer *current_weather_layer;
@@ -35,8 +36,8 @@ struct Parts {
 };
 
 typedef struct {
-  char *time_text;
-  char *date_text;
+  char time_text[6];
+  char date_text[16];
 } TimeInfo;
   
 const VibePattern DISCONNECT_PATTERN = {
@@ -52,17 +53,9 @@ const VibePattern RECONNECT_PATTERN = {
 struct Parts *parts;
 
 static TimeInfo get_current_time(const struct tm *tick_time) {
-  static TimeInfo time_info;
-  
-  // Generate the time
-  static char time_buffer[6];
-  strftime(time_buffer, 6, "%H:%M", tick_time);
-  time_info.time_text = time_buffer;
-  
-  // Generate the date
-  static char date_buffer[16];
-  strftime(date_buffer, 16, "%A %m/%d", tick_time);
-  time_info.date_text = date_buffer;
+  TimeInfo time_info;
+  strftime(time_info.time_text, 6, "%H:%M", tick_time);
+  strftime(time_info.date_text, 16, "%A %m/%d", tick_time);
   
   return time_info;
 }
@@ -74,12 +67,11 @@ static void update_time(struct Parts *parts, const struct tm *tick_time) {
   APP_LOG(APP_LOG_LEVEL_DEBUG, "Used heap is [%d]", heap_bytes_used());
   
   // Set the new times
-  text_layer_set_text(parts->time_layer, time_info.time_text);
-  text_layer_set_text(parts->date_layer, time_info.date_text);
+  copying_text_layer_set_text(parts->time_layer, time_info.time_text);
+  copying_text_layer_set_text(parts->date_layer, time_info.date_text);
   
-  // Mark layers as dirty
-  layer_mark_dirty(text_layer_get_layer(parts->time_layer));
-  layer_mark_dirty(text_layer_get_layer(parts->date_layer));
+  layer_mark_dirty(copying_text_layer_get_layer(parts->time_layer));
+  layer_mark_dirty(copying_text_layer_get_layer(parts->date_layer));
 }
 
 static bool send_request() {
@@ -122,7 +114,7 @@ static Forecast initial_forecast() {
 }
 
 static ForecastLayer* create_forecast_layer() {
-  ForecastLayer *forecast_layer = forecast_layer_create_layer(GRect(0, 44, 144, 128), initial_forecast());
+  ForecastLayer *forecast_layer = forecast_layer_create_layer(GRect(2, 44, 144, 128), initial_forecast());
   return forecast_layer;
 }
 
@@ -142,23 +134,21 @@ static BatteryLayer* create_battery_layer() {
   return battery_layer;
 }
 
-static TextLayer* create_time_layer() {
-  TextLayer *text_layer = text_layer_create(GRect(4, 0, 144, 43));
-  layer_set_clips(text_layer_get_layer(text_layer), false);
-  text_layer_set_font(text_layer, fonts_get_system_font(FONT_KEY_BITHAM_42_BOLD));
-  text_layer_set_text_alignment(text_layer, GTextAlignmentLeft);
-  text_layer_set_text_color(text_layer, GColorWhite);
-  text_layer_set_background_color(text_layer, GColorClear);
+static CopyingTextLayer* create_time_layer() {
+  CopyingTextLayer *text_layer = copying_text_layer_create(GRect(0, 0, 144, 40), "", 6);
+  copying_text_layer_set_font(text_layer, fonts_get_system_font(FONT_KEY_BITHAM_42_BOLD));
+  copying_text_layer_set_text_alignment(text_layer, GTextAlignmentLeft);
+  copying_text_layer_set_text_color(text_layer, GColorWhite);
+  layer_set_clips(copying_text_layer_get_layer(text_layer), false);
   return text_layer;
 }
 
-static TextLayer* create_date_layer() {
-  TextLayer *date_layer = text_layer_create(GRect(0, 40, 144, 18));
-  layer_set_clips(text_layer_get_layer(date_layer), false);
-  text_layer_set_font(date_layer, fonts_get_system_font(FONT_KEY_GOTHIC_24_BOLD));
-  text_layer_set_text_alignment(date_layer, GTextAlignmentCenter);
-  text_layer_set_text_color(date_layer, GColorWhite);
-  text_layer_set_background_color(date_layer, GColorClear);
+static CopyingTextLayer* create_date_layer() {
+  CopyingTextLayer *date_layer = copying_text_layer_create(GRect(0, 40, 144, 18), "", 16);
+  copying_text_layer_set_font(date_layer, fonts_get_system_font(FONT_KEY_GOTHIC_24_BOLD));
+  copying_text_layer_set_text_alignment(date_layer, GTextAlignmentCenter);
+  copying_text_layer_set_text_color(date_layer, GColorWhite);
+  layer_set_clips(copying_text_layer_get_layer(date_layer), false);
   return date_layer;
 }
 
@@ -169,15 +159,15 @@ static void window_load(Window *window) {
   
   layer_add_child(window_layer, battery_layer_get_layer(parts->battery_layer));
   layer_add_child(window_layer, bluetooth_layer_get_layer(parts->bluetooth_layer));
-  layer_add_child(window_layer, text_layer_get_layer(parts->time_layer));
-  layer_add_child(window_layer, text_layer_get_layer(parts->date_layer));
+  layer_add_child(window_layer, copying_text_layer_get_layer(parts->date_layer));
+  layer_add_child(window_layer, copying_text_layer_get_layer(parts->time_layer));
   layer_add_child(window_layer, current_weather_layer_get_layer(parts->current_weather_layer));
   layer_add_child(window_layer, forecast_layer_get_layer(parts->forecast_layer));
 }
 
 static void window_unload(Window *window) {
-  text_layer_destroy(parts->time_layer);
-  text_layer_destroy(parts->date_layer);
+  copying_text_layer_destroy(parts->time_layer);
+  copying_text_layer_destroy(parts->date_layer);
   battery_layer_destroy(parts->battery_layer);
   bluetooth_layer_destroy(parts->bluetooth_layer);
   current_weather_layer_destroy(parts->current_weather_layer);
@@ -204,21 +194,7 @@ static void hide_forecast(void *data) {
     forecast_layer_set_hidden(parts->forecast_layer, true);
 }
 
-char axisToChar(AccelAxisType axis) {
-  switch (axis) {
-    case ACCEL_AXIS_X:
-      return 'X';
-    case ACCEL_AXIS_Y:
-      return 'Y';
-    case ACCEL_AXIS_Z:
-      return 'Z';
-  }
-  
-  return '?';
-}
-
 static void handle_tap(AccelAxisType axis, int32_t direction) {
-  // APP_LOG(APP_LOG_LEVEL_DEBUG, "Got tap on [%c] axis in direction [%d]", axisToChar(axis), (int) direction);
   switch (axis) {
     case ACCEL_AXIS_X:
       break;
@@ -273,8 +249,8 @@ static void handle_init() {
   *parts = (struct Parts) {
     .main_window = window_create(),
     .forecast_layer = create_forecast_layer(),
-    .time_layer = create_time_layer(),
     .date_layer = create_date_layer(),
+    .time_layer = create_time_layer(),
     .battery_layer = create_battery_layer(),
     .bluetooth_layer = create_bluetooth_layer(),
     .current_weather_layer = create_current_weather_layer()

@@ -39,7 +39,7 @@ static void draw_battery(Layer *layer, GContext *ctx) {
   GRect full_bounds = layer_get_bounds(layer);
   GRect battery_outline = GRect(full_bounds.origin.x, full_bounds.origin.y, full_bounds.size.w - 2, full_bounds.size.h);
   GRect battery_nipple = GRect(battery_outline.size.w, (full_bounds.size.h/2) - 3, 2, (full_bounds.size.h/2) + 1);
-  GRect battery_level_bounds = grect_crop(battery_outline, 3);
+  GRect battery_level_bounds = grect_crop(battery_outline, 2);
   
   battery_level_bounds.size.w = scale_length_using_int(battery_level_bounds.size.w, battery_layer->battery_state.charge_percent);
   

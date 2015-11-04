@@ -1,161 +1,160 @@
 {
-  "appKeys": {
-    "MESSAGE_TYPE": 8,
-    "SUNRISE_TIME": 2,
-    "SUNSET_TIME": 3,
-    "WEATHER_FORECAST_PRECIP_CHANCE": 7,
-    "WEATHER_FORECAST_START": 9,
-    "WEATHER_FORECAST_TEMPS": 6,
-    "WEATHER_ICON_OFFSET": 4,
-    "WEATHER_PRECIP": 5,
-    "WEATHER_STATUS": 0,
-    "WEATHER_TEMP": 1
-  },
-  "capabilities": [
-    "location"
-  ],
-  "companyName": "mcclellan.mj@gmail.com",
-  "longName": "hourly-weather",
-  "projectType": "native",
-  "resources": {
-    "media": [
-      {
-        "file": "images/22.png",
-        "name": "WEATHER_ICON_22",
-        "type": "png"
-      },
-      {
-        "file": "images/14.png",
-        "name": "WEATHER_ICON_14",
-        "type": "png"
-      },
-      {
-        "file": "images/19.png",
-        "name": "WEATHER_ICON_19",
-        "type": "png"
-      },
-      {
-        "file": "images/16.png",
-        "name": "WEATHER_ICON_16",
-        "type": "png"
-      },
-      {
-        "file": "images/17.png",
-        "name": "WEATHER_ICON_17",
-        "type": "png"
-      },
-      {
-        "file": "images/0.png",
-        "name": "WEATHER_ICON_0",
-        "type": "png"
-      },
-      {
-        "file": "images/8.png",
-        "name": "WEATHER_ICON_8",
-        "type": "png"
-      },
-      {
-        "file": "images/9.png",
-        "name": "WEATHER_ICON_9",
-        "type": "png"
-      },
-      {
-        "file": "images/10.png",
-        "name": "WEATHER_ICON_10",
-        "type": "png"
-      },
-      {
-        "file": "images/12.png",
-        "name": "WEATHER_ICON_12",
-        "type": "png"
-      },
-      {
-        "file": "images/13.png",
-        "name": "WEATHER_ICON_13",
-        "type": "png"
-      },
-      {
-        "file": "images/6.png",
-        "name": "WEATHER_ICON_6",
-        "type": "png"
-      },
-      {
-        "file": "images/7.png",
-        "name": "WEATHER_ICON_7",
-        "type": "png"
-      },
-      {
-        "file": "images/5.png",
-        "name": "WEATHER_ICON_5",
-        "type": "png"
-      },
-      {
-        "file": "images/2.png",
-        "name": "WEATHER_ICON_2",
-        "type": "png"
-      },
-      {
-        "file": "images/23.png",
-        "name": "WEATHER_ICON_23",
-        "type": "png"
-      },
-      {
-        "file": "images/4.png",
-        "name": "WEATHER_ICON_4",
-        "type": "png"
-      },
-      {
-        "file": "images/24.png",
-        "name": "WEATHER_ICON_24",
-        "type": "png"
-      },
-      {
-        "file": "images/20.png",
-        "name": "WEATHER_ICON_20",
-        "type": "png"
-      },
-      {
-        "file": "images/11.png",
-        "name": "WEATHER_ICON_11",
-        "type": "png"
-      },
-      {
-        "file": "images/18.png",
-        "name": "WEATHER_ICON_18",
-        "type": "png"
-      },
-      {
-        "file": "images/3.png",
-        "name": "WEATHER_ICON_3",
-        "type": "png"
-      },
-      {
-        "file": "images/1.png",
-        "name": "WEATHER_ICON_1",
-        "type": "png"
-      },
-      {
-        "file": "images/21.png",
-        "name": "WEATHER_ICON_21",
-        "type": "png"
-      },
-      {
-        "file": "images/15.png",
-        "name": "WEATHER_ICON_15",
-        "type": "png"
-      }
-    ]
-  },
-  "sdkVersion": "3",
-  "shortName": "hourly-weather",
-  "uuid": "01a622b8-1ebb-4426-89e6-e5fec312c767",
-  "versionCode": 1,
-  "versionLabel": "0.4",
-  "watchapp": {
-    "watchface": true
-  },
-  "targetPlatforms": [
-    "aplite",
-    "basalt"
-  ]
+    "appKeys": {
+        "MESSAGE_TYPE": 8,
+        "SUNRISE_TIME": 2,
+        "SUNSET_TIME": 3,
+        "WEATHER_FORECAST_PRECIP_CHANCE": 7,
+        "WEATHER_FORECAST_START": 9,
+        "WEATHER_FORECAST_TEMPS": 6,
+        "WEATHER_ICON_OFFSET": 4,
+        "WEATHER_PRECIP": 5,
+        "WEATHER_STATUS": 0,
+        "WEATHER_TEMP": 1
+    },
+    "capabilities": [
+        "location"
+    ],
+    "companyName": "mcclellan.mj@gmail.com",
+    "longName": "hourly-weather",
+    "projectType": "native",
+    "resources": {
+        "media": [
+            {
+                "file": "images/9.png",
+                "name": "WEATHER_ICON_9",
+                "type": "png"
+            },
+            {
+                "file": "images/8.png",
+                "name": "WEATHER_ICON_8",
+                "type": "png"
+            },
+            {
+                "file": "images/7.png",
+                "name": "WEATHER_ICON_7",
+                "type": "png"
+            },
+            {
+                "file": "images/6.png",
+                "name": "WEATHER_ICON_6",
+                "type": "png"
+            },
+            {
+                "file": "images/5.png",
+                "name": "WEATHER_ICON_5",
+                "type": "png"
+            },
+            {
+                "file": "images/4.png",
+                "name": "WEATHER_ICON_4",
+                "type": "png"
+            },
+            {
+                "file": "images/3.png",
+                "name": "WEATHER_ICON_3",
+                "type": "png"
+            },
+            {
+                "file": "images/24.png",
+                "name": "WEATHER_ICON_24",
+                "type": "png"
+            },
+            {
+                "file": "images/23.png",
+                "name": "WEATHER_ICON_23",
+                "type": "png"
+            },
+            {
+                "file": "images/22.png",
+                "name": "WEATHER_ICON_22",
+                "type": "png"
+            },
+            {
+                "file": "images/21.png",
+                "name": "WEATHER_ICON_21",
+                "type": "png"
+            },
+            {
+                "file": "images/20.png",
+                "name": "WEATHER_ICON_20",
+                "type": "png"
+            },
+            {
+                "file": "images/2.png",
+                "name": "WEATHER_ICON_2",
+                "type": "png"
+            },
+            {
+                "file": "images/19.png",
+                "name": "WEATHER_ICON_19",
+                "type": "png"
+            },
+            {
+                "file": "images/18.png",
+                "name": "WEATHER_ICON_18",
+                "type": "png"
+            },
+            {
+                "file": "images/17.png",
+                "name": "WEATHER_ICON_17",
+                "type": "png"
+            },
+            {
+                "file": "images/16.png",
+                "name": "WEATHER_ICON_16",
+                "type": "png"
+            },
+            {
+                "file": "images/15.png",
+                "name": "WEATHER_ICON_15",
+                "type": "png"
+            },
+            {
+                "file": "images/14.png",
+                "name": "WEATHER_ICON_14",
+                "type": "png"
+            },
+            {
+                "file": "images/13.png",
+                "name": "WEATHER_ICON_13",
+                "type": "png"
+            },
+            {
+                "file": "images/12.png",
+                "name": "WEATHER_ICON_12",
+                "type": "png"
+            },
+            {
+                "file": "images/11.png",
+                "name": "WEATHER_ICON_11",
+                "type": "png"
+            },
+            {
+                "file": "images/10.png",
+                "name": "WEATHER_ICON_10",
+                "type": "png"
+            },
+            {
+                "file": "images/1.png",
+                "name": "WEATHER_ICON_1",
+                "type": "png"
+            },
+            {
+                "file": "images/0.png",
+                "name": "WEATHER_ICON_0",
+                "type": "png"
+            }
+        ]
+    },
+    "sdkVersion": "3",
+    "shortName": "hourly-weather",
+    "targetPlatforms": [
+        "aplite",
+        "basalt"
+    ],
+    "uuid": "01a622b8-1ebb-4426-89e6-e5fec312c767",
+    "versionLabel": "0.4",
+    "watchapp": {
+        "watchface": true
+    }
 }

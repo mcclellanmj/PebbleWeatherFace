@@ -185,8 +185,8 @@ var Weather = (function() {
       "WEATHER_FORECAST_START" : ByteConversions.toInt8ByteArray(forecastPieces[0].FCTTIME.hour),
       "WEATHER_FORECAST_PRECIP_CHANCE" : [].concat.apply([], forecastPrecip.map(ByteConversions.toInt8ByteArray)),
       "WEATHER_FORECAST_TEMPS" : [].concat.apply([], forecastTemps.map(ByteConversions.toInt16ByteArray)),
-      "SUNRISE_TIME" : ByteConversions.toInt32ByteArray(sunPhaseEpochs.riseEpoch),
-      "SUNSET_TIME" : ByteConversions.toInt32ByteArray(sunPhaseEpochs.setEpoch)
+      "SUNRISE_TIME" : ByteConversions.toInt32ByteArray(sunPhaseEpochs.riseEpoch / 1000),
+      "SUNSET_TIME" : ByteConversions.toInt32ByteArray(sunPhaseEpochs.setEpoch / 1000)
     };
   };
   

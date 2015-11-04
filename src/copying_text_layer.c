@@ -2,9 +2,8 @@
 #include "copying_text_layer.h"
 #include "util.h"
 
-CopyingTextLayer* copying_text_layer_create_layer(GRect frame, char* text, size_t max) {
-  Layer *root_layer = layer_create_with_data(frame, sizeof(CopyingTextLayer));
-  CopyingTextLayer *copying_text_layer = (CopyingTextLayer *) layer_get_data(root_layer);
+CopyingTextLayer* copying_text_layer_create(GRect frame, const char* text, size_t max) {
+  CopyingTextLayer *copying_text_layer = malloc(sizeof(CopyingTextLayer));
   *copying_text_layer = (CopyingTextLayer) {
     .text_layer = text_layer_create(frame),
     .text = copy_string(text, max),
@@ -12,7 +11,7 @@ CopyingTextLayer* copying_text_layer_create_layer(GRect frame, char* text, size_
   };
 
   text_layer_set_text(copying_text_layer->text_layer, copying_text_layer->text);
-  text_layer_set_background_color(copying_text_layer->text_layer, GColorBlack);
+  text_layer_set_background_color(copying_text_layer->text_layer, GColorClear);
   text_layer_set_text_color(copying_text_layer->text_layer, GColorWhite);
 
   return copying_text_layer;
@@ -34,7 +33,7 @@ void copying_text_layer_set_font(CopyingTextLayer *copying_text_layer, GFont fon
   text_layer_set_font(copying_text_layer->text_layer, font);
 }
 
-void copying_text_layer_set_text(CopyingTextLayer *copying_text_layer, char* text) {
+void copying_text_layer_set_text(CopyingTextLayer *copying_text_layer, const char* text) {
   char* new_text = copy_string(text, copying_text_layer->max_size);
   text_layer_set_text(copying_text_layer->text_layer, new_text);
   free(copying_text_layer->text);
@@ -45,11 +44,12 @@ void copying_text_layer_set_background_color(CopyingTextLayer *copying_text_laye
   text_layer_set_background_color(copying_text_layer->text_layer, background_color);
 }
 
-void copying_text_layer_set_foreground_color(CopyingTextLayer *copying_text_layer, GColor foreground_color) {
+void copying_text_layer_set_text_color(CopyingTextLayer *copying_text_layer, GColor foreground_color) {
   text_layer_set_text_color(copying_text_layer->text_layer, foreground_color);
 }
 
-void copying_text_layer_destroy_layer(CopyingTextLayer *copying_text_layer) {
+void copying_text_layer_destroy(CopyingTextLayer *copying_text_layer) {
   text_layer_destroy(copying_text_layer->text_layer);
   free(copying_text_layer->text);
+  free(copying_text_layer);
 }

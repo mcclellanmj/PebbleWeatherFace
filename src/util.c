@@ -1,10 +1,11 @@
 #include "util.h"
 
+// TODO: Needs to use malloc instead but requires some more testing
 char* copy_string(const char* source, size_t max) {
   size_t string_length = strlen(source) + 1;
   size_t largest = string_length > max + 1 ? max + 1 : string_length;
 
-  char* destination = (char *) malloc(sizeof(char) * largest);
+  char* destination = (char *) calloc(sizeof(char), largest);
   strncpy(destination, source, largest - 1);
   return destination;
 }

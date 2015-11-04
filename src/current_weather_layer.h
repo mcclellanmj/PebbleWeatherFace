@@ -1,6 +1,7 @@
 #pragma once
 #include <pebble.h>
 #include "bitmap_container.h"
+#include "copying_text_layer.h"
 
 enum WeatherStatus {AVAILABLE, ERROR};
 
@@ -18,7 +19,7 @@ typedef struct {
 typedef struct {
   Layer *layer;
   BitmapLayer *icon_layer;
-  TextLayer *temperature_layer;
+  CopyingTextLayer *temperature_layer;
   GColor foreground_color;
   GColor background_color;
   LazyLoadState initialized_state;

@@ -20,18 +20,8 @@
     "resources": {
         "media": [
             {
-                "file": "images/humidity_icon.png",
-                "name": "HUMIDITY_ICON",
-                "type": "png"
-            },
-            {
-                "file": "images/sun_rise_icon.png",
-                "name": "SUN_RISE_ICON",
-                "type": "png"
-            },
-            {
-                "file": "images/sun_set_icon.png",
-                "name": "SUN_SET_ICON",
+                "file": "images/wind_icon.png",
+                "name": "WIND_ICON",
                 "type": "png"
             },
             {
@@ -40,8 +30,18 @@
                 "type": "png"
             },
             {
-                "file": "images/wind_icon.png",
-                "name": "WIND_ICON",
+                "file": "images/sun_set_icon.png",
+                "name": "SUN_SET_ICON",
+                "type": "png"
+            },
+            {
+                "file": "images/sun_rise_icon.png",
+                "name": "SUN_RISE_ICON",
+                "type": "png"
+            },
+            {
+                "file": "images/humidity_icon.png",
+                "name": "HUMIDITY_ICON",
                 "type": "png"
             },
             {

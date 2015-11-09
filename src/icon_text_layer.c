@@ -9,7 +9,7 @@ static const uint8_t ICON_SIZE_Y = 15;
 static const uint8_t TEXT_SIZE_X = 50;
 static const uint8_t TEXT_SIZE_Y = 20;
 
-IconTextLayer* icon_text_layer_create_layer(const GRect frame, const GBitmap *bitmap, const char *text, size_t text_max) {
+IconTextLayer* icon_text_layer_create(const GRect frame, const GBitmap *bitmap, const char *text, size_t text_max) {
   Layer *layer = layer_create_with_data(frame, sizeof(IconTextLayer));
   IconTextLayer *icon_text_layer = (IconTextLayer *) layer_get_data(layer);
   *icon_text_layer = (IconTextLayer) {

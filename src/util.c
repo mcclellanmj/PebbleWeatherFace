@@ -19,8 +19,8 @@ uint16_t scale_length_using_int(uint16_t max_size, uint8_t percentage) {
   return scale_length(max_size, as_decimal_percent);
 }
 
-GPoint gpoint_add(const GPoint *x, const GPoint *y) {
-  return GPoint(x->x + y->x, x->y + y->y);
+GPoint gpoint_add(const GPoint *first, const GPoint *second) {
+  return GPoint(first->x + second->x, first->y + second->y);
 }
 
 MinMaxResult int16_min_max(const int16_t *array, size_t num_elements) {

@@ -9,7 +9,8 @@ typedef struct {
   enum WeatherStatus status;
   int16_t temperature;
   uint8_t icon_offset;
-  int16_t uv_index;
+  uint8_t uv_index;
+  uint8_t humidity;
 } CurrentWeather;
 
 typedef struct {

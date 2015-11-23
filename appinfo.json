@@ -9,7 +9,10 @@
         "WEATHER_ICON_OFFSET": 4,
         "WEATHER_PRECIP": 5,
         "WEATHER_STATUS": 0,
-        "WEATHER_TEMP": 1
+        "WEATHER_TEMP": 1,
+        "WEATHER_UV": 10,
+        "WEATHER_WIND": 11,
+        "WEATHER_HUMIDITY": 12
     },
     "capabilities": [
         "location"

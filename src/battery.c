@@ -1,4 +1,5 @@
 #include <pebble.h>
+
 #include "battery.h"
 #include "util.h"
 

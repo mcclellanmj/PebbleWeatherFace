@@ -3,7 +3,7 @@
 #include "util.h"
 
 CopyingTextLayer* copying_text_layer_create(GRect frame, const char* text, size_t max) {
-  CopyingTextLayer *copying_text_layer = malloc(sizeof(CopyingTextLayer));
+  CopyingTextLayer *copying_text_layer = (CopyingTextLayer *) malloc(sizeof(CopyingTextLayer));
   *copying_text_layer = (CopyingTextLayer) {
     .text_layer = text_layer_create(frame),
     .text = copy_string(text, max),

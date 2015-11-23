@@ -4,7 +4,7 @@ var HTTP_REQUEST_TIMEOUT = 45000;
 
 var locationOptions = {
   enableHighAccuracy: false, 
-  maximumAge: 60000,
+  maximumAge: 240000,
   timeout: 15000
 };
 
@@ -185,6 +185,10 @@ var Weather = (function() {
       "WEATHER_FORECAST_START" : ByteConversions.toInt8ByteArray(forecastPieces[0].FCTTIME.hour),
       "WEATHER_FORECAST_PRECIP_CHANCE" : [].concat.apply([], forecastPrecip.map(ByteConversions.toInt8ByteArray)),
       "WEATHER_FORECAST_TEMPS" : [].concat.apply([], forecastTemps.map(ByteConversions.toInt16ByteArray)),
+      // FIXME: Needs to be mapped to the values in the forecast, probably will come from current observation
+      "WEATHER_UV" : ???,
+      "WEATHER_HUMIDITY" : ???,
+      "WEATHER_WIND" : ???,
       "SUNRISE_TIME" : ByteConversions.toInt32ByteArray(sunPhaseEpochs.riseEpoch / 1000),
       "SUNSET_TIME" : ByteConversions.toInt32ByteArray(sunPhaseEpochs.setEpoch / 1000)
     };

@@ -11,6 +11,7 @@ typedef struct {
   uint8_t icon_offset;
   uint8_t uv_index;
   uint8_t humidity;
+  uint8_t wind_speed;
 } CurrentWeather;
 
 typedef struct {

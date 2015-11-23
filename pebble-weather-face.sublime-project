@@ -8,8 +8,9 @@
 	"settings" : {
 		"cc_include_options" :
     	[
+        "-I/home/matt/development/libraries/PebbleSDK-3.4/Pebble/aplite/include",
     		"-I/home/matt/development/projects/PebbleWeatherFace/build/basalt/",
-        	"-I/home/matt/development/libraries/PebbleSDK-3.4/Pebble/aplite/include"
+        "-Wall"
     	],
     	"tab_size": 2,
     	"translate_tabs_to_spaces": true

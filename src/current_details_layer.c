@@ -2,7 +2,7 @@
 #include "current_details_layer.h"
 #include "icon_text_layer.h"
 
-static const int POTENTIAL_LAYER_COUNT = 4;
+static const int POTENTIAL_LAYER_COUNT = 5;
 
 typedef struct {
   bool (*is_available)(const OutdoorState *state);
@@ -55,6 +55,19 @@ static IconTextLayer* sunset_create(GRect frame, const OutdoorState *state) {
 }
 // End sunset layer
 
+// Wind layer
+static bool wind_is_available(const OutdoorState *state) {
+  return true;
+}
+
+static IconTextLayer* wind_create(GRect frame, const OutdoorState *state) {
+  char wind_speed[8];
+  snprintf(wind_speed, 7, "%d mph", state->current_weather.wind_speed);
+  return icon_text_layer_create(frame, gbitmap_create_with_resource(RESOURCE_ID_HUMIDITY_ICON), wind_speed, 7);
+}
+
+// End Wind
+
 // Humidity layer
 static bool humidity_is_available(const OutdoorState *state) {
   return true;
@@ -67,7 +80,7 @@ static IconTextLayer* humidity_create(GRect frame, const OutdoorState *state) {
 }
 // End Humidity
 
-static PotentialIcons potential_icons[4] = {
+static PotentialIcons potential_icons[5] = {
   { .is_available = sunrise_is_available
   ,  .create = sunrise_create
   },
@@ -77,17 +90,21 @@ static PotentialIcons potential_icons[4] = {
   { .is_available = uv_is_available
   , .create = uv_create
   },
+  { .is_available = wind_is_available
+  , .create = wind_create
+  },
   { .is_available = humidity_is_available
   , .create = humidity_create
   }
 };
 
-static void create_icon_text_layers(IconTextLayer* icon_text_layers[3], OutdoorState outdoor_state) {
+static void create_icon_text_layers(Layer *root_layer, IconTextLayer *icon_text_layers[3], OutdoorState outdoor_state) {
   int current_place = 0;
   for(int i = 0; i < POTENTIAL_LAYER_COUNT && current_place < 3; i++) {
     if(potential_icons[i].is_available(&outdoor_state)) {
       GRect location = GRect(0, 15 * current_place, 80, 15);
       icon_text_layers[current_place] = potential_icons[i].create(location, &outdoor_state);
+      layer_add_child(root_layer, icon_text_layer_get_layer(icon_text_layers[current_place]));
       current_place = current_place + 1;
     }
   }
@@ -100,13 +117,15 @@ CurrentDetailsLayer* current_details_layer_create_layer(GRect frame, OutdoorStat
     .root_layer = root_layer,
   };
   
-  create_icon_text_layers(current_details_layer->icon_text_layers, outdoor_state);
+  create_icon_text_layers(root_layer, current_details_layer->icon_text_layers, outdoor_state);
   return current_details_layer;
 }
 
 static void destroy_icon_text_layers(IconTextLayer* icon_text_layers[3]) {
   for(int i = 0; i < 3; i++) {
-    icon_text_layer_destroy(icon_text_layers[i]);
+    IconTextLayer *icon_text_layer = icon_text_layers[i];
+    icon_text_layer_destroy(icon_text_layer);
+    layer_remove_from_parent(icon_text_layer_get_layer(icon_text_layer));
   }
 }
 
@@ -125,6 +144,7 @@ void current_details_layer_set_background_color(CurrentDetailsLayer *current_det
 
 void current_details_layer_set_outdoor_state(CurrentDetailsLayer *current_details_layer, OutdoorState outdoor_state) {
   destroy_icon_text_layers(current_details_layer->icon_text_layers);
+  create_icon_text_layers(current_details_layer->root_layer, current_details_layer->icon_text_layers, outdoor_state);
 }
 
 Layer* current_details_layer_get_layer(CurrentDetailsLayer *current_details_layer) {

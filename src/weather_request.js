@@ -185,10 +185,9 @@ var Weather = (function() {
       "WEATHER_FORECAST_START" : ByteConversions.toInt8ByteArray(forecastPieces[0].FCTTIME.hour),
       "WEATHER_FORECAST_PRECIP_CHANCE" : [].concat.apply([], forecastPrecip.map(ByteConversions.toInt8ByteArray)),
       "WEATHER_FORECAST_TEMPS" : [].concat.apply([], forecastTemps.map(ByteConversions.toInt16ByteArray)),
-      // FIXME: Needs to be mapped to the values in the forecast, probably will come from current observation
-      "WEATHER_UV" : ???,
-      "WEATHER_HUMIDITY" : ???,
-      "WEATHER_WIND" : ???,
+      "WEATHER_UV" : ByteConversions.toInt8ByteArray(parseInt(current.UV)),
+      "WEATHER_HUMIDITY" : ByteConversions.toInt8ByteArray(parseInt(current.relative_humidity)),
+      "WEATHER_WIND" : ByteConversions.toInt8ByteArray(Math.round(current.wind_mph)),
       "SUNRISE_TIME" : ByteConversions.toInt32ByteArray(sunPhaseEpochs.riseEpoch / 1000),
       "SUNSET_TIME" : ByteConversions.toInt32ByteArray(sunPhaseEpochs.setEpoch / 1000)
     };

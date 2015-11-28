@@ -7,6 +7,7 @@ enum WeatherStatus {AVAILABLE, ERROR};
 
 typedef struct {
   enum WeatherStatus status;
+  bool valid;
   int16_t temperature;
   uint8_t icon_offset;
   uint8_t uv_index;

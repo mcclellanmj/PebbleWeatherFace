@@ -3,11 +3,13 @@
 #include "current_weather_layer.h"
 
 typedef struct {
+  bool valid;
   time_t sunrise_time;
   time_t sunset_time;
 } SunTimeInfo;
 
 typedef struct {
+  bool valid;
   CurrentWeather current_weather;
   SunTimeInfo sun_time_info;
   time_t current_time;

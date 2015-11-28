@@ -29,8 +29,10 @@ IconTextLayer* icon_text_layer_create(const GRect frame, const GBitmap *bitmap, 
                          , TEXT_SIZE_Y ), text, text_max)
   };
 
-  layer_add_child(layer, bitmap_layer_get_layer(icon_text_layer->icon_layer));
+  bitmap_layer_set_bitmap(icon_text_layer->icon_layer, bitmap);
+
   layer_add_child(layer, copying_text_layer_get_layer(icon_text_layer->text_layer));
+  layer_add_child(layer, bitmap_layer_get_layer(icon_text_layer->icon_layer));
 
   return icon_text_layer;
 }

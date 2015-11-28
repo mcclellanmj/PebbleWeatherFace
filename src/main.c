@@ -4,6 +4,7 @@
 #include "current_weather_layer.h"
 #include "forecast_layer.h"
 #include "copying_text_layer.h"
+#include "current_details_layer.h"
   
 enum {
   WEATHER_STATUS = 0,
@@ -35,6 +36,7 @@ struct Parts {
   BatteryLayer *battery_layer;
   BluetoothLayer *bluetooth_layer;
   CurrentWeatherLayer *current_weather_layer;
+  CurrentDetailsLayer *current_details_layer;
   ForecastLayer *forecast_layer;
 };
 
@@ -102,8 +104,20 @@ static void handle_minute_tick(struct tm *tick_time, TimeUnits units_changed) {
   }
 }
 
+static CurrentWeather mock_weather() {
+  return (CurrentWeather) {
+    .valid = true,
+    .temperature = 70,
+    .icon_offset = 0,
+    .uv_index = 2,
+    .humidity = 100,
+    .wind_speed = 8
+  };
+}
+
 static CurrentWeather initial_weather() {
   CurrentWeather current_weather;
+  current_weather.valid = false;
   current_weather.temperature = -185;
   current_weather.icon_offset = 0;
 
@@ -116,13 +130,43 @@ static Forecast initial_forecast() {
   };
 }
 
+static time_t hours(int32_t num) {
+  return num * 3600;
+}
+
+static OutdoorState mock_outdoor_state() {
+  time_t current_time = time(NULL);
+  return (OutdoorState) {
+    .valid = true,
+    .current_weather = mock_weather(),
+    .sun_time_info = (SunTimeInfo) {
+      .sunrise_time = current_time - hours(8), 
+      .sunset_time = current_time + hours(3)
+    },
+    .current_time = current_time
+  };
+}
+
+static OutdoorState initial_outdoor_state() {
+  return mock_outdoor_state();
+  /*
+  return (OutdoorState) {
+    .valid = false
+  };
+  */
+}
+
+static CurrentDetailsLayer* create_current_details_layer() {
+  return current_details_layer_create_layer(GRect(60, 63, 84, 125), initial_outdoor_state());
+}
+
 static ForecastLayer* create_forecast_layer() {
   ForecastLayer *forecast_layer = forecast_layer_create_layer(GRect(2, 44, 144, 128), initial_forecast());
   return forecast_layer;
 }
 
 static CurrentWeatherLayer* create_current_weather_layer() {
-  return current_weather_layer_create_layer(GRect(0, 63, 144, 125), initial_weather());
+  return current_weather_layer_create_layer(GRect(0, 63, 60, 125), initial_weather());
 }
 
 static BluetoothLayer* create_bluetooth_layer() {
@@ -165,6 +209,7 @@ static void window_load(Window *window) {
   layer_add_child(window_layer, copying_text_layer_get_layer(parts->date_layer));
   layer_add_child(window_layer, copying_text_layer_get_layer(parts->time_layer));
   layer_add_child(window_layer, current_weather_layer_get_layer(parts->current_weather_layer));
+  layer_add_child(window_layer, current_details_layer_get_layer(parts->current_details_layer));
   layer_add_child(window_layer, forecast_layer_get_layer(parts->forecast_layer));
 }
 
@@ -228,12 +273,28 @@ static void inbox_received_handler(DictionaryIterator *iterator, void *context) 
     APP_LOG(APP_LOG_LEVEL_DEBUG, "Got weather from phone");
     
     // Update the current weather
-    CurrentWeather current_weather = {
+    CurrentWeather current_weather = (CurrentWeather) {
       .status = AVAILABLE,
       .temperature = dict_find(iterator, WEATHER_TEMP)->value->int16,
       .icon_offset = dict_find(iterator, WEATHER_ICON_OFFSET)->value->uint8,
+      .uv_index = dict_find(iterator, WEATHER_UV)->value->uint8,
+      .humidity = dict_find(iterator, WEATHER_HUMIDITY)->value->uint8,
+      .wind_speed = dict_find(iterator, WEATHER_WIND)->value->uint8
     };
+
+    SunTimeInfo sun_time_info = (SunTimeInfo) {
+      .sunrise_time = dict_find(iterator, SUNRISE_TIME)->value->int32,
+      .sunset_time = dict_find(iterator, SUNSET_TIME)->value->int32
+    }; 
+
+    OutdoorState outdoor_state = (OutdoorState) {
+      .sun_time_info = sun_time_info,
+      .current_weather = current_weather,
+      .current_time = time(NULL)
+    };
+
     current_weather_layer_set_weather(parts->current_weather_layer, current_weather);
+    current_details_layer_set_outdoor_state(parts->current_details_layer, outdoor_state);
     
     // Update the forecast
     Forecast forecast = (Forecast) {
@@ -248,7 +309,7 @@ static void inbox_received_handler(DictionaryIterator *iterator, void *context) 
 }
 
 static void handle_init() {
-  parts = malloc(sizeof(*parts));
+  parts = (struct Parts*) malloc(sizeof(*parts));
   *parts = (struct Parts) {
     .main_window = window_create(),
     .forecast_layer = create_forecast_layer(),
@@ -256,7 +317,8 @@ static void handle_init() {
     .time_layer = create_time_layer(),
     .battery_layer = create_battery_layer(),
     .bluetooth_layer = create_bluetooth_layer(),
-    .current_weather_layer = create_current_weather_layer()
+    .current_weather_layer = create_current_weather_layer(),
+    .current_details_layer = create_current_details_layer()
   };
   
   window_set_window_handlers(parts->main_window, (WindowHandlers) {

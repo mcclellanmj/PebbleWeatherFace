@@ -25,7 +25,7 @@ static bool is_sun_up(const time_t current_time, const SunTimeInfo sun_time_info
 // Sunrise layer
 static bool sunrise_is_available(const OutdoorState *state) {
   time_t current_time = state->current_time;
-  return is_sun_up(current_time, state->sun_time_info);
+  return !is_sun_up(current_time, state->sun_time_info);
 }
 
 static IconTextLayer* sunrise_create(GRect frame, const OutdoorState *state) {
@@ -47,7 +47,7 @@ static IconTextLayer* uv_create(GRect frame, const OutdoorState *state) {
 
 // Sunset layer
 static bool sunset_is_available(const OutdoorState *state) {
-  return !is_sun_up(state->current_time, state->sun_time_info);
+  return is_sun_up(state->current_time, state->sun_time_info);
 }
 
 static IconTextLayer* sunset_create(GRect frame, const OutdoorState *state) {
@@ -63,7 +63,7 @@ static bool wind_is_available(const OutdoorState *state) {
 static IconTextLayer* wind_create(GRect frame, const OutdoorState *state) {
   char wind_speed[8];
   snprintf(wind_speed, 7, "%d mph", state->current_weather.wind_speed);
-  return icon_text_layer_create(frame, gbitmap_create_with_resource(RESOURCE_ID_HUMIDITY_ICON), wind_speed, 7);
+  return icon_text_layer_create(frame, gbitmap_create_with_resource(RESOURCE_ID_WIND_ICON), wind_speed, 7);
 }
 
 // End Wind
@@ -98,11 +98,11 @@ static PotentialIcons potential_icons[5] = {
   }
 };
 
-static void create_icon_text_layers(Layer *root_layer, IconTextLayer *icon_text_layers[3], OutdoorState outdoor_state) {
-  int current_place = 0;
-  for(int i = 0; i < POTENTIAL_LAYER_COUNT && current_place < 3; i++) {
+static void create_icon_text_layers(Layer *root_layer, IconTextLayer *icon_text_layers[4], OutdoorState outdoor_state) {
+  uint8_t current_place = 0;
+  for(int i = 0; i < POTENTIAL_LAYER_COUNT && current_place < 4; i++) {
     if(potential_icons[i].is_available(&outdoor_state)) {
-      GRect location = GRect(0, 15 * current_place, 80, 15);
+      GRect location = GRect(0, 5 + (8 * current_place), 94, 100);
       icon_text_layers[current_place] = potential_icons[i].create(location, &outdoor_state);
       layer_add_child(root_layer, icon_text_layer_get_layer(icon_text_layers[current_place]));
       current_place = current_place + 1;
@@ -122,7 +122,8 @@ CurrentDetailsLayer* current_details_layer_create_layer(GRect frame, OutdoorStat
 }
 
 static void destroy_icon_text_layers(IconTextLayer* icon_text_layers[3]) {
-  for(int i = 0; i < 3; i++) {
+  APP_LOG(APP_LOG_LEVEL_DEBUG, "Destroying the layers");
+  for(int i = 0; i < 4; i++) {
     IconTextLayer *icon_text_layer = icon_text_layers[i];
     icon_text_layer_destroy(icon_text_layer);
     layer_remove_from_parent(icon_text_layer_get_layer(icon_text_layer));

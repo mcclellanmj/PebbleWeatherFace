@@ -10,9 +10,9 @@ typedef struct {
 } PotentialIcons;
 
 // Start helper methods
-static IconTextLayer* create_time_icon_layer(GRect frame, const GBitmap* bitmap, const time_t *time_in_millis) {
+static IconTextLayer* create_time_icon_layer(GRect frame, GBitmap* bitmap, const time_t *time_in_millis) {
   char time[6];
-  struct tm *time_info = localtime(time_in_millis);
+  struct tm *time_info = gmtime(time_in_millis);
   strftime(time, 6, "%H:%M", time_info);
   return icon_text_layer_create(frame, bitmap, time, 6);
 }
@@ -98,9 +98,9 @@ static PotentialIcons potential_icons[5] = {
   }
 };
 
-static void create_icon_text_layers(Layer *root_layer, IconTextLayer *icon_text_layers[4], OutdoorState outdoor_state) {
+static uint8_t create_icon_text_layers(Layer *root_layer, IconTextLayer *icon_text_layers[4], OutdoorState outdoor_state) {
   uint8_t current_place = 0;
-  for(int i = 0; i < POTENTIAL_LAYER_COUNT && current_place < 4; i++) {
+  for(int i = 0; i < POTENTIAL_LAYER_COUNT && current_place < NUMBER_OF_DETAIL_LAYERS; i++) {
     if(potential_icons[i].is_available(&outdoor_state)) {
       GRect location = GRect(0, 5 + (8 * current_place), 94, 100);
       icon_text_layers[current_place] = potential_icons[i].create(location, &outdoor_state);
@@ -108,6 +108,8 @@ static void create_icon_text_layers(Layer *root_layer, IconTextLayer *icon_text_
       current_place = current_place + 1;
     }
   }
+  
+  return current_place;
 }
 
 CurrentDetailsLayer* current_details_layer_create_layer(GRect frame, OutdoorState outdoor_state) {
@@ -115,23 +117,24 @@ CurrentDetailsLayer* current_details_layer_create_layer(GRect frame, OutdoorStat
   CurrentDetailsLayer *current_details_layer = (CurrentDetailsLayer *) layer_get_data(root_layer);
   *current_details_layer = (CurrentDetailsLayer) {
     .root_layer = root_layer,
+    .active_layers = 0
   };
   
-  create_icon_text_layers(root_layer, current_details_layer->icon_text_layers, outdoor_state);
+  current_details_layer_set_outdoor_state(current_details_layer, outdoor_state);
   return current_details_layer;
 }
 
-static void destroy_icon_text_layers(IconTextLayer* icon_text_layers[3]) {
+static void destroy_icon_text_layers(IconTextLayer* icon_text_layers[NUMBER_OF_DETAIL_LAYERS], uint8_t active_layers) {
   APP_LOG(APP_LOG_LEVEL_DEBUG, "Destroying the layers");
-  for(int i = 0; i < 4; i++) {
+  for(int i = 0; i < active_layers; i++) {
     IconTextLayer *icon_text_layer = icon_text_layers[i];
-    icon_text_layer_destroy(icon_text_layer);
     layer_remove_from_parent(icon_text_layer_get_layer(icon_text_layer));
+    icon_text_layer_destroy(icon_text_layer);
   }
 }
 
 void current_details_layer_destroy(CurrentDetailsLayer *current_details_layer) {
-  destroy_icon_text_layers(current_details_layer->icon_text_layers);
+  destroy_icon_text_layers(current_details_layer->icon_text_layers, current_details_layer->active_layers);
   layer_destroy(current_details_layer->root_layer);
 }
 
@@ -144,8 +147,9 @@ void current_details_layer_set_background_color(CurrentDetailsLayer *current_det
 }
 
 void current_details_layer_set_outdoor_state(CurrentDetailsLayer *current_details_layer, OutdoorState outdoor_state) {
-  destroy_icon_text_layers(current_details_layer->icon_text_layers);
-  create_icon_text_layers(current_details_layer->root_layer, current_details_layer->icon_text_layers, outdoor_state);
+  destroy_icon_text_layers(current_details_layer->icon_text_layers, current_details_layer->active_layers);
+  current_details_layer->active_layers = 0;
+  current_details_layer->active_layers = create_icon_text_layers(current_details_layer->root_layer, current_details_layer->icon_text_layers, outdoor_state);
 }
 
 Layer* current_details_layer_get_layer(CurrentDetailsLayer *current_details_layer) {

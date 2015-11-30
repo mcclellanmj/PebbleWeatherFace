@@ -157,7 +157,7 @@ static OutdoorState initial_outdoor_state() {
 }
 
 static CurrentDetailsLayer* create_current_details_layer() {
-  return current_details_layer_create_layer(GRect(60, 63, 84, 125), initial_outdoor_state());
+  return current_details_layer_create_layer(GRect(65, 63, 84, 125), initial_outdoor_state());
 }
 
 static ForecastLayer* create_forecast_layer() {
@@ -274,6 +274,7 @@ static void inbox_received_handler(DictionaryIterator *iterator, void *context) 
     
     // Update the current weather
     CurrentWeather current_weather = (CurrentWeather) {
+      .valid = true,
       .status = AVAILABLE,
       .temperature = dict_find(iterator, WEATHER_TEMP)->value->int16,
       .icon_offset = dict_find(iterator, WEATHER_ICON_OFFSET)->value->uint8,
@@ -334,7 +335,7 @@ static void handle_init() {
   accel_tap_service_subscribe(handle_tap);
   
   app_message_register_inbox_received(inbox_received_handler);
-  app_message_open(107, 9);
+  app_message_open(131, 9);
 }
 
 static void handle_deinit() {

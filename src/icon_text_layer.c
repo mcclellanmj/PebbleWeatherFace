@@ -9,16 +9,17 @@ static const uint8_t ICON_SIZE_Y = 15;
 static const uint8_t TEXT_SIZE_X = 50;
 static const uint8_t TEXT_SIZE_Y = 20;
 
-IconTextLayer* icon_text_layer_create(const GRect frame, const GBitmap *bitmap, const char *text, size_t text_max) {
+IconTextLayer* icon_text_layer_create(const GRect frame, GBitmap *bitmap, const char *text, size_t text_max) {
   Layer *layer = layer_create_with_data(frame, sizeof(IconTextLayer));
   IconTextLayer *icon_text_layer = (IconTextLayer *) layer_get_data(layer);
   *icon_text_layer = (IconTextLayer) {
     .background_color = GColorClear,
     .foreground_color = GColorWhite,
+    .bitmap = bitmap,
     .root_layer = layer,
     .icon_layer = bitmap_layer_create(
                     GRect( frame.origin.x
-                         , frame.origin.y
+                         , frame.origin.y + 2
                          , ICON_SIZE_X
                          , ICON_SIZE_Y)
                   ),
@@ -48,8 +49,7 @@ void icon_text_layer_set_text(IconTextLayer *icon_text_layer, const char *text) 
 
 void icon_text_layer_destroy(IconTextLayer *icon_text_layer) {
   bitmap_layer_destroy(icon_text_layer->icon_layer);
+  gbitmap_destroy(icon_text_layer->bitmap);
   copying_text_layer_destroy(icon_text_layer->text_layer);
   layer_destroy(icon_text_layer->root_layer);
-  
-  free(icon_text_layer);
 }

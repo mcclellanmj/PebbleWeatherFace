@@ -2,6 +2,8 @@
 #include "icon_text_layer.h"
 #include "current_weather_layer.h"
 
+#define NUMBER_OF_DETAIL_LAYERS 4
+
 typedef struct {
   bool valid;
   time_t sunrise_time;
@@ -17,10 +19,11 @@ typedef struct {
 
 typedef struct {
   Layer *root_layer;
-  IconTextLayer* icon_text_layers[3];
+  IconTextLayer* icon_text_layers[NUMBER_OF_DETAIL_LAYERS];
   OutdoorState outdoor_state;
   GColor foreground_color;
   GColor background_color;
+  uint8_t active_layers;
 } CurrentDetailsLayer;
 
 CurrentDetailsLayer* current_details_layer_create_layer(GRect frame, OutdoorState outdoor_state);

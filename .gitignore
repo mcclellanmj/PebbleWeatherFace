@@ -1,5 +1,3 @@
-CMakeLists.txt
 .lock-waf_linux2_build
-wscript.backup
 build
 pebble-weather-face.sublime-workspace

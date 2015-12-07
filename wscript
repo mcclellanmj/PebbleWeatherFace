@@ -10,6 +10,14 @@ import os.path
 top = '.'
 out = 'build'
 
+def replace_js_environment(task):
+    input = task.inputs[0].abspath()
+    print("Input is [%s]" % input)
+    with open(input) as infile, open(task.outputs[0].abspath(), 'w') as outfile:
+        for line in infile:
+            modified_line = line.replace('%WEATHER_UNDERGROUND_KEY%', os.environ['WEATHER_UNDERGROUND_KEY'])
+            outfile.write(modified_line) 
+
 def options(ctx):
     ctx.load('pebble_sdk')
 
@@ -38,4 +46,5 @@ def build(ctx):
             binaries.append({'platform': p, 'app_elf': app_elf})
 
     ctx.set_group('bundle')
-    ctx.pbl_bundle(binaries=binaries, js=ctx.path.ant_glob('src/js/**/*.js'))
+    ctx(rule=replace_js_environment, source='src/weather_request.js', target='src/js/pebble-js-app.js')
+    ctx.pbl_bundle(binaries=binaries, js=ctx.path.ant_glob('build/src/js/**/*.js'))

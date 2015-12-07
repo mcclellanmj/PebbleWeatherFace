@@ -42,19 +42,26 @@ Layer* current_weather_layer_get_layer(CurrentWeatherLayer *current_weather_laye
   return current_weather_layer->layer;
 }
 
-void current_weather_layer_destroy(CurrentWeatherLayer* current_weather_layer) {
+void current_weather_layer_destroy(CurrentWeatherLayer *current_weather_layer) {
   bitmap_container_destroy(current_weather_layer->initialized_state.bitmap_container);
   bitmap_layer_destroy(current_weather_layer->icon_layer);
   copying_text_layer_destroy(current_weather_layer->temperature_layer);
   layer_destroy(current_weather_layer->layer);
 }
 
-void current_weather_layer_set_foreground_color(CurrentWeatherLayer* current_weather_layer, GColor foreground_color) {
+void current_weather_layer_set_foreground_color(CurrentWeatherLayer *current_weather_layer, GColor foreground_color) {
   current_weather_layer->foreground_color = foreground_color;
 }
 
-void current_weather_layer_set_weather(CurrentWeatherLayer* current_weather_layer,
-                                               CurrentWeather current_weather) {
+static void current_weather_set_invalid_weather(CurrentWeatherLayer *current_weather_layer) {
+  bitmap_container_load(current_weather_layer->initialized_state.bitmap_container, OFFSET_TO_RESOURCE_MAPPING[23]);
+  bitmap_layer_set_bitmap(current_weather_layer->icon_layer, bitmap_container_get_current(current_weather_layer->initialized_state.bitmap_container));
+  layer_mark_dirty(bitmap_layer_get_layer(current_weather_layer->icon_layer));
+
+  copying_text_layer_set_text(current_weather_layer->temperature_layer, "N/A");
+}
+
+static void current_weather_set_valid_weather(CurrentWeatherLayer *current_weather_layer, CurrentWeather current_weather) {
   // Setup the bitmap layer
   bitmap_container_load(current_weather_layer->initialized_state.bitmap_container, OFFSET_TO_RESOURCE_MAPPING[current_weather.icon_offset]);
   bitmap_layer_set_bitmap(current_weather_layer->icon_layer, bitmap_container_get_current(current_weather_layer->initialized_state.bitmap_container));
@@ -64,4 +71,13 @@ void current_weather_layer_set_weather(CurrentWeatherLayer* current_weather_laye
   char temperature_buffer[7];
   snprintf(temperature_buffer, 7, "%d\u00B0", current_weather.temperature);
   copying_text_layer_set_text(current_weather_layer->temperature_layer, temperature_buffer);
+}
+
+void current_weather_layer_set_weather(CurrentWeatherLayer *current_weather_layer,
+                                               CurrentWeather current_weather) {
+  if(!current_weather.valid) {
+    current_weather_set_invalid_weather(current_weather_layer);
+  } else {
+    current_weather_set_valid_weather(current_weather_layer, current_weather);
+  }
 }

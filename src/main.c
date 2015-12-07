@@ -116,12 +116,9 @@ static CurrentWeather mock_weather() {
 }
 
 static CurrentWeather initial_weather() {
-  CurrentWeather current_weather;
-  current_weather.valid = false;
-  current_weather.temperature = -185;
-  current_weather.icon_offset = 0;
-
-  return current_weather;
+  return (CurrentWeather) {
+    .valid = false
+  };
 }
 
 static Forecast initial_forecast() {
@@ -148,12 +145,10 @@ static OutdoorState mock_outdoor_state() {
 }
 
 static OutdoorState initial_outdoor_state() {
-  return mock_outdoor_state();
-  /*
+//  return mock_outdoor_state();
   return (OutdoorState) {
     .valid = false
   };
-  */
 }
 
 static CurrentDetailsLayer* create_current_details_layer() {
@@ -289,6 +284,7 @@ static void inbox_received_handler(DictionaryIterator *iterator, void *context) 
     }; 
 
     OutdoorState outdoor_state = (OutdoorState) {
+      .valid = true,
       .sun_time_info = sun_time_info,
       .current_weather = current_weather,
       .current_time = time(NULL)

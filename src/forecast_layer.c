@@ -126,7 +126,7 @@ static void draw_forecast_layer(Layer *layer, GContext *ctx) {
   ForecastLayer *forecast_layer = (ForecastLayer*) layer_get_data(layer);
   Forecast forecast = forecast_layer->forecast;
 
-  if(forecast.valid == true) {
+  if(forecast.valid) {
     draw_forecast(forecast_layer, ctx);
   } else {
     draw_invalid_forecast(forecast_layer, ctx);

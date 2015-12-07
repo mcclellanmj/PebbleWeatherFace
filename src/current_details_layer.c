@@ -149,7 +149,11 @@ void current_details_layer_set_background_color(CurrentDetailsLayer *current_det
 void current_details_layer_set_outdoor_state(CurrentDetailsLayer *current_details_layer, OutdoorState outdoor_state) {
   destroy_icon_text_layers(current_details_layer->icon_text_layers, current_details_layer->active_layers);
   current_details_layer->active_layers = 0;
-  current_details_layer->active_layers = create_icon_text_layers(current_details_layer->root_layer, current_details_layer->icon_text_layers, outdoor_state);
+  if(outdoor_state.valid) {
+    current_details_layer->active_layers = create_icon_text_layers(current_details_layer->root_layer, current_details_layer->icon_text_layers, outdoor_state);
+  } else {
+    APP_LOG(APP_LOG_LEVEL_DEBUG, "Got an invalid outdoor_state, skipped creation of the new layers");
+  }
 }
 
 Layer* current_details_layer_get_layer(CurrentDetailsLayer *current_details_layer) {

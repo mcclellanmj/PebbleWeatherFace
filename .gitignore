@@ -1,9 +1,5 @@
-.idea
 CMakeLists.txt
-wscript
 .lock-waf_linux2_build
 wscript.backup
 build
-compile_js.pyc
 pebble-weather-face.sublime-workspace
-generated/

@@ -12,7 +12,7 @@ typedef struct {
 // Start helper methods
 static IconTextLayer* create_time_icon_layer(GRect frame, GBitmap* bitmap, const time_t *time_in_millis) {
   char time[6];
-  struct tm *time_info = gmtime(time_in_millis);
+  struct tm *time_info = localtime(time_in_millis);
   strftime(time, 6, "%H:%M", time_info);
   return icon_text_layer_create(frame, bitmap, time, 6);
 }

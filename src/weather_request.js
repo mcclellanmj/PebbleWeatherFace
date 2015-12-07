@@ -59,16 +59,6 @@ var SunPhases = (function() {
 })();
 
 var Time = (function() {
-  var convertToUTCEpoch = function(localMilliseconds) {
-    var date = new Date(localMilliseconds);
-    var timezoneMillis = Number(date.getTimezoneOffset()) * 60000;
-    var asUTC =  localMilliseconds - timezoneMillis;
-    console.log("Offset is [" + date.getTimezoneOffset() + "].");
-    console.log("Calculated millis is [" + timezoneMillis + "].");
-    console.log("UTC millis is [" + asUTC + "].");
-    return asUTC;
-  };
-  
   var convertToEpoch = function(hour, minute) {
     var date = new Date();
     date.setHours(hour);
@@ -81,7 +71,6 @@ var Time = (function() {
   };
   
   return {
-    convertToUTCEpoch : convertToUTCEpoch,
     convertToEpoch : convertToEpoch,
     getCurrentEpoch : getCurrentEpoch
   };
@@ -199,8 +188,8 @@ var Weather = (function() {
       "WEATHER_UV" : ByteConversions.toInt8ByteArray(parseInt(current.UV)),
       "WEATHER_HUMIDITY" : ByteConversions.toInt8ByteArray(parseInt(current.relative_humidity)),
       "WEATHER_WIND" : ByteConversions.toInt8ByteArray(Math.round(current.wind_mph)),
-      "SUNRISE_TIME" : ByteConversions.toInt32ByteArray(Time.convertToUTCEpoch(sunPhaseEpochs.riseEpoch) / 1000),
-      "SUNSET_TIME" : ByteConversions.toInt32ByteArray(Time.convertToUTCEpoch(sunPhaseEpochs.setEpoch) / 1000)
+      "SUNRISE_TIME" : ByteConversions.toInt32ByteArray(sunPhaseEpochs.riseEpoch / 1000),
+      "SUNSET_TIME" : ByteConversions.toInt32ByteArray(sunPhaseEpochs.setEpoch / 1000)
     };
   };
   

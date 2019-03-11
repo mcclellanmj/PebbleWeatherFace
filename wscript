@@ -15,7 +15,7 @@ def replace_js_environment(task):
     print("Input is [%s]" % input)
     with open(input) as infile, open(task.outputs[0].abspath(), 'w') as outfile:
         for line in infile:
-            modified_line = line.replace('%WEATHER_UNDERGROUND_KEY%', os.environ['WEATHER_UNDERGROUND_KEY'])
+            modified_line = line.replace('%DARKSKY_KEY%', os.environ['DARKSKY_KEY'])
             outfile.write(modified_line) 
 
 def options(ctx):
